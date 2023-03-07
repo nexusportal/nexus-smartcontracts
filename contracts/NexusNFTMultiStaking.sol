@@ -1842,12 +1842,12 @@ library EnumerableMap {
 }
 
 
-// File contracts/INexusNFTWeight.sol
+// File contracts/INexuNFTWeight.sol
 
 
 pragma solidity ^0.8.16;
 
-interface INexusNFTWeight {
+interface INexuNFTWeight {
     function nexusNFTWeight(uint256 tokenId)
         external
         view
@@ -1860,7 +1860,7 @@ interface INexusNFTWeight {
 
 
 pragma solidity ^0.8.16;
-contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
+contract PRONFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
     using EnumerableSet for EnumerableSet.UintSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
     using SafeERC20 for IERC20;
@@ -1944,7 +1944,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
     bool public enableEmergency;
 
-    uint256[] public nexusAmountForLock = new uint256[](5);
+    uint256[] public proAmountForLock = new uint256[](5);
 
     EnumerableMap.AddressToUintMap private accRewardPerWeight;
 
@@ -2273,7 +2273,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         }
     }
 
-    function depositNexusBar(uint256 amount) private {
+    function depositNexuBar(uint256 amount) private {
         require(amount > 0, "zero amount");
 
         require(
@@ -2305,7 +2305,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         totalnexusLocked += amount;
     }
 
-    function withdrawNexusBar(uint256 amount) private {
+    function withdrawNexuBar(uint256 amount) private {
         require(amount > 0, "zero amount");
 
 
@@ -2352,8 +2352,8 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         if (lock.lockMode != 0) {
             if (lock.lockedAmount > 0) {
-                require(lock.lockedAmount >= minNexusAmount, "small nexus staked");
-                depositNexusBar(minNexusCollateralAmount * count);
+                require(lock.lockedAmount >= minNexusAmount, "small pro staked");
+                depositNexuBar(minNexusCollateralAmount * count);
             }
         }
 
@@ -2377,7 +2377,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
             userNFTBalances[_msgSender()].add(tokenId);
 
-            uint256 nexusNFTWeight = INexusNFTWeight(nexusWeight)
+            uint256 nexusNFTWeight = INexuNFTWeight(nexusWeight)
                 .nexusNFTWeight(tokenId) * 10**18;
             newWeight += nexusNFTWeight;
 
@@ -2424,8 +2424,8 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         if (lock.lockMode != 0) {
             if (lock.lockedAmount > 0) {
-                require(lock.lockedAmount >= minNexusAmount, "small nexus staked");
-                depositNexusBar(minNexusCollateralAmount);
+                require(lock.lockedAmount >= minNexusAmount, "small pro staked");
+                depositNexuBar(minNexusCollateralAmount);
             }
         }
 
@@ -2440,7 +2440,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         userNFTBalances[_msgSender()].add(tokenId);
 
         uint256 oldWeight = lock.nftWeight;
-        uint256 nexusNFTWeight = INexusNFTWeight(nexusWeight)
+        uint256 nexusNFTWeight = INexuNFTWeight(nexusWeight)
             .nexusNFTWeight(tokenId) * 10**18;
         uint256 newWeight = oldWeight + nexusNFTWeight;
 
@@ -2470,9 +2470,9 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         TokenLock storage lock = userLocks[msg.sender];
 
         if (lock.nexusLock >= minNexusCollateralAmount) {
-            withdrawNexusBar(minNexusCollateralAmount);
+            withdrawNexuBar(minNexusCollateralAmount);
         }else if(lock.nexusLock > 0){
-            withdrawNexusBar(lock.nexusLock);
+            withdrawNexuBar(lock.nexusLock);
         }
 
         userNFTBalances[_msgSender()].remove(tokenId);
@@ -2481,7 +2481,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         uint256 oldWeight = lock.nftWeight;
 
-        uint256 nexusNFTWeight = INexusNFTWeight(nexusWeight)
+        uint256 nexusNFTWeight = INexuNFTWeight(nexusWeight)
             .nexusNFTWeight(tokenId) * 10**18;
 
         uint256 newWeight = oldWeight - nexusNFTWeight;
@@ -2538,7 +2538,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
             userNFTBalances[_msgSender()].remove(tokenId);
 
-            uint256 nexusNFTWeight = INexusNFTWeight(nexusWeight)
+            uint256 nexusNFTWeight = INexuNFTWeight(nexusWeight)
                 .nexusNFTWeight(tokenId) * 10**18;
 
             newWeight -= nexusNFTWeight;
@@ -2563,9 +2563,9 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         harvest();
 
         if (lock.nexusLock >= minNexusCollateralAmount * count) {
-            withdrawNexusBar(minNexusCollateralAmount * count);
+            withdrawNexuBar(minNexusCollateralAmount * count);
         }else if(lock.nexusLock > 0){
-            withdrawNexusBar(lock.nexusLock);
+            withdrawNexuBar(lock.nexusLock);
         }
 
         lock.nftWeight = newWeight;
@@ -2596,7 +2596,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             uint256 i;
             for (i; i < tokenCount; ) {
                 weight +=
-                    INexusNFTWeight(nexusWeight).nexusNFTWeight(staked[i]) *
+                    INexuNFTWeight(nexusWeight).nexusNFTWeight(staked[i]) *
                     10**18;
                 unchecked {
                     i++;
@@ -2606,7 +2606,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
     }
 
     /**
-     * @notice locks nexus token until specified time
+     * @notice locks pro token until specified time
      * @param amount amount of tokens to lock
      * @param lockMode unix time in seconds after that tokens can be withdrawn
      */
@@ -2619,12 +2619,12 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         require(
             IERC20(nexusToken).balanceOf(msg.sender) >= amount,
-            "small NEXUS balance to stake"
+            "small PRO balance to stake"
         );
 
         require(
             IERC20(nexusToken).allowance(msg.sender, address(this)) >= amount,
-            "small NEXUS allowance to stake"
+            "small PRO allowance to stake"
         );
 
         require(lockMode >= 0 && lockMode < 5, "Invalid lock mode");
@@ -2656,12 +2656,12 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
             if (lockMode > 0) {
 
-                require(amount >= minNexusAmount, "small nexus amount for nft");
+                require(amount >= minNexusAmount, "small pro amount for nft");
 
                 uint256 count = userStakedNFTCount(msg.sender);
 
                 if (count > 0 && minNexusCollateralAmount * count > lock.nexusLock) {
-                    depositNexusBar(
+                    depositNexuBar(
                         minNexusCollateralAmount * count - lock.nexusLock
                     );
                 }
@@ -2672,7 +2672,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         totalPoolWeight += addeddWeight;
 
-        nexusAmountForLock[lockMode] += amount;
+        proAmountForLock[lockMode] += amount;
 
         lock.totalWeight += addeddWeight;
         lock.lockedAmount += amount;
@@ -2700,9 +2700,9 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         if (count > 0) {
             if (lock.nexusLock == 0) {
-                depositNexusBar(minNexusCollateralAmount * count);
+                depositNexuBar(minNexusCollateralAmount * count);
             }
-            require(lock.lockedAmount >= minNexusAmount, "small nexus staked");
+            require(lock.lockedAmount >= minNexusAmount, "small pro staked");
         }
 
         uint256 unlockTime = lock.unlockTime +
@@ -2717,9 +2717,9 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         totalPoolWeight += addeddWeight;
 
-        nexusAmountForLock[lock.lockMode] -= lock.lockedAmount;
+        proAmountForLock[lock.lockMode] -= lock.lockedAmount;
 
-        nexusAmountForLock[lockMode] += lock.lockedAmount;
+        proAmountForLock[lockMode] += lock.lockedAmount;
 
         lock.totalWeight += addeddWeight;
 
@@ -2751,9 +2751,9 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         totalPoolWeight -= reducedWeight;
 
-        nexusAmountForLock[lock.lockMode] -= lock.lockedAmount;
+        proAmountForLock[lock.lockMode] -= lock.lockedAmount;
 
-        nexusAmountForLock[lockMode] += lock.lockedAmount;
+        proAmountForLock[lockMode] += lock.lockedAmount;
 
         lock.totalWeight -= reducedWeight;
 
@@ -2794,7 +2794,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         totalPoolWeight += addeddWeight;
 
-        nexusAmountForLock[lock.lockMode] += amount;
+        proAmountForLock[lock.lockMode] += amount;
 
         lock.totalWeight += addeddWeight;
         lock.lockedAmount += amount;
@@ -2838,7 +2838,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             backToPool(nexusToken, tokenFee - burnAmount);
         }
 
-        nexusAmountForLock[lock.lockMode] -= amount;
+        proAmountForLock[lock.lockMode] -= amount;
 
         lock.lockedAmount -= amount;
 
@@ -2877,21 +2877,21 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         require(res, "ETH TRANSFER FAILED");
     }
 
-    function totalNexusLocked() public view returns (uint256 amount) {
-        for (uint256 i; i < nexusAmountForLock.length; ) {
-            amount += nexusAmountForLock[i];
+    function totalProLocked() public view returns (uint256 amount) {
+        for (uint256 i; i < proAmountForLock.length; ) {
+            amount += proAmountForLock[i];
             unchecked {
                 i++;
             }
         }
     }
 
-    function setNexusWeight(address _nexusWeight) external onlyOwner {
+    function setNexuWeight(address _nexusWeight) external onlyOwner {
         require(_nexusWeight != address(0), "wrong address");
         nexusWeight = _nexusWeight;
     }
 
-    function setMinNexusCollateral(uint256 _min) external onlyOwner {
+    function setMinxNexu(uint256 _min) external onlyOwner {
         minNexusCollateralAmount = _min;
     }
 
@@ -2938,15 +2938,15 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         view
         returns (
             uint256 poolSize,
-            uint256 nexusAmount,
+            uint256 proAmount,
             uint256 nftCount,
-            uint256 NexusCollateralAmount
+            uint256 xNexuAmount
         )
     {
         poolSize = totalPoolWeight;
-        nexusAmount = totalNexusLocked();
+        proAmount = totalProLocked();
         nftCount = totalStakedNFTCount();
-        NexusCollateralAmount = totalnexusLocked;
+        xNexuAmount = totalnexusLocked;
     }
 
     function getRewardHistory()

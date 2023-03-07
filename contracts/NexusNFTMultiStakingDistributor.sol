@@ -1156,11 +1156,11 @@ abstract contract Ownable is Context {
 
 
 pragma solidity ^0.8.16;
-interface INexusStaking {
+interface INexuStaking {
     function distributeReward(address token, uint256 _amount) external payable;
 }
 
-contract NexusNFTMultiStakingDistributor is Ownable {
+contract NexuNFTMultiStakingDistributor is Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;
 
@@ -1209,7 +1209,7 @@ contract NexusNFTMultiStakingDistributor is Ownable {
             currentBalance = IERC20(token).balanceOf(address(this));
             if (currentBalance > minAmount) {
                 SafeERC20.safeApprove(IERC20(token), nexusStaker, currentBalance);  
-                INexusStaking(nexusStaker).distributeReward(token, currentBalance);
+                INexuStaking(nexusStaker).distributeReward(token, currentBalance);
             }
 
             unchecked {
@@ -1219,7 +1219,7 @@ contract NexusNFTMultiStakingDistributor is Ownable {
 
         currentBalance = address(this).balance;
         if(currentBalance > minAmount){
-            INexusStaking(nexusStaker).distributeReward{value:currentBalance}(address(0), currentBalance);
+            INexuStaking(nexusStaker).distributeReward{value:currentBalance}(address(0), currentBalance);
         }
     }
 
