@@ -111,18 +111,18 @@ abstract contract Ownable is Context {
 }
 
 
-// File contracts/NexuNFTWeight.sol
+// File contracts/NexusNFTWeight.sol
 
 
 pragma solidity ^0.8.9;
 
-contract NexuNFTWeight is Ownable {
-    mapping(uint256 => uint256) public nexuNFTWeight;
+contract NexusNFTWeight is Ownable {
+    mapping(uint256 => uint256) public nexusNFTWeight;
 
-    function setNexuNFTWeight(uint256 _tokenId, uint256 _weight)
+    function setNexusNFTWeight(uint256 _tokenId, uint256 _weight)
         external
         onlyOwner
     {
-        nexuNFTWeight[_tokenId] = _weight;
+        nexusNFTWeight[_tokenId] = _weight;
     }
 }

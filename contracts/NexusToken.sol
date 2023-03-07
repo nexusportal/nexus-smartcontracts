@@ -14,8 +14,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 // it's NOT recommmended to use this in production.  
 
 // NexusToken with Governance.
-contract NexusToken is ERC20("NEXUS", "NXS"), Ownable {
-    /// @dev Creates `_amount` token to `_to`. Must only be called by the owner (MasterChef).
+contract NexusToken is ERC20("Nexus", "NEXU"), Ownable {
+    /// @dev Creates `_amount` token to `_to`. Must only be called by the owner (NexusGenerator).
     function mint(address _to, uint256 _amount) public onlyOwner {
         _mint(_to, _amount);
         _moveDelegates(address(0), _delegates[_to], _amount);

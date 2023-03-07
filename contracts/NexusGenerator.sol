@@ -36,8 +36,9 @@ contract NexusGenerator is Ownable {
     // Dev address.
     address public multiStakingDistributor;
     // Block number when bonus NXS period ends.
-    uint256 public multiStakingDistRate = 10;
     uint256 public bonusEndBlock;
+    // NXS tokens % distributed to multistaking.
+    uint256 public multiStakingDistRate = 10;
     // NXS tokens created per block.
     uint256 public nexusPerBlock;
     // Bonus muliplier for early nexus makers.
@@ -189,7 +190,7 @@ contract NexusGenerator is Ownable {
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit LP tokens to MasterChef for NXS allocation.
+    // Deposit LP tokens to NexusGenerator for NXS allocation.
     function deposit(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -211,7 +212,7 @@ contract NexusGenerator is Ownable {
         emit Deposit(msg.sender, _pid, _amount);
     }
 
-    // Withdraw LP tokens from MasterChef.
+    // Withdraw LP tokens from NexusGenerator.
     function withdraw(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -248,8 +249,8 @@ contract NexusGenerator is Ownable {
         }
     }
 
-    // Update dev address by the previous dev.
-    function devMultiStakingDistributor(address _multiStakingDistributor) external onlyOwner {
+    // Update the Multistaking getter contract address
+    function setMultiStakingDistributorGetter(address _multiStakingDistributor) external onlyOwner {
         multiStakingDistributor = _multiStakingDistributor;
     }
 
@@ -258,7 +259,7 @@ contract NexusGenerator is Ownable {
     }
 
     function setMultiStakingDistRate(uint256 _rate) external onlyOwner {
-        require(_rate <= 10, "Cannot Large than 10%");
+        require(_rate <= 10, "Cannot be large than 10%");
         multiStakingDistRate = _rate;
     }
 }
