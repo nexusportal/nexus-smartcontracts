@@ -1882,11 +1882,10 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
     uint256 public PRECISION_FACTOR = 10**8;
 
-    address public constant nexusToken =
-        0xf810576A68C3731875BDe07404BE815b16fC0B4e;
-
     address public constant deadAddress =
         0x000000000000000000000000000000000000dEaD;
+
+    address public immutable nexusToken;
 
     uint256[] public LOCK_TIME_MULTIPLIER = [10, 15, 70, 150, 310];
 
@@ -1898,7 +1897,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         365 days
     ];
 
-    address public nexusNFT = 0x58F65d03b8d5e793D042236dBba142de40fd6a94;
+    address public immutable nexusNFT;
 
     uint256 public minNexusAmount = 1111 * 10**18;
 
@@ -1962,9 +1961,12 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
     fallback() external payable {}
 
-    constructor(address _nexusWeight) {
+    constructor(address _nexusToken, address _nexusNFT, address _nexusWeight) {
         require(_nexusWeight != address(0), "wrong weighter");
+        require(_nexusToken != address(0), "wrong weighter");
+        nexusToken = _nexusToken;
         nexusWeight = _nexusWeight;
+        nexusNFT = _nexusNFT;
     }
 
     function totalStakedNFTCount() public view returns (uint256 tokenCount) {
