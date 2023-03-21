@@ -2,7 +2,7 @@
 
 pragma solidity >=0.5.0;
 
-interface IUniswapV2Factory {
+interface INexusSwapFactory {
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
     function feeTo() external view returns (address);
@@ -21,7 +21,7 @@ interface IUniswapV2Factory {
 }
 
 
-// File contracts/uniswapv2/libraries/SafeMath.sol
+// File contracts/NexusSwap/libraries/SafeMath.sol
 
 
 
@@ -44,13 +44,13 @@ library SafeMathUniswap {
 }
 
 
-// File contracts/uniswapv2/UniswapV2ERC20.sol
+// File contracts/NexusSwap/NexusSwapERC20.sol
 
 
 
 pragma solidity =0.6.12;
 
-contract UniswapV2ERC20 {
+contract NexusSwapERC20 {
     using SafeMathUniswap for uint;
 
     string public constant name = 'NEXUS LP Token';
@@ -141,7 +141,7 @@ contract UniswapV2ERC20 {
 }
 
 
-// File contracts/uniswapv2/libraries/Math.sol
+// File contracts/NexusSwap/libraries/Math.sol
 
 
 
@@ -170,7 +170,7 @@ library Math {
 }
 
 
-// File contracts/uniswapv2/libraries/UQ112x112.sol
+// File contracts/NexusSwap/libraries/UQ112x112.sol
 
 
 
@@ -196,7 +196,7 @@ library UQ112x112 {
 }
 
 
-// File contracts/uniswapv2/interfaces/IERC20.sol
+// File contracts/NexusSwap/interfaces/IERC20.sol
 
 
 
@@ -219,18 +219,18 @@ interface IERC20Uniswap {
 }
 
 
-// File contracts/uniswapv2/interfaces/IUniswapV2Callee.sol
+// File contracts/NexusSwap/interfaces/INexusSwapCallee.sol
 
 
 
 pragma solidity >=0.5.0;
 
-interface IUniswapV2Callee {
-    function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external;
+interface INexusSwapCallee {
+    function NexusSwapCall(address sender, uint amount0, uint amount1, bytes calldata data) external;
 }
 
 
-// File contracts/uniswapv2/UniswapV2Pair.sol
+// File contracts/NexusSwap/NexusSwapPair.sol
 
 
 
@@ -246,7 +246,7 @@ interface IMigrator {
     function desiredLiquidity() external view returns (uint256);
 }
 
-contract UniswapV2Pair is UniswapV2ERC20 {
+contract NexusSwapPair is NexusSwapERC20 {
     using SafeMathUniswap  for uint;
     using UQ112x112 for uint224;
 
@@ -325,7 +325,7 @@ contract UniswapV2Pair is UniswapV2ERC20 {
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
     function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
-        address feeTo = IUniswapV2Factory(factory).feeTo();
+        address feeTo = INexusSwapFactory(factory).feeTo();
         feeOn = feeTo != address(0);
         uint _kLast = kLast; // gas savings
         if (feeOn) {
@@ -355,7 +355,7 @@ contract UniswapV2Pair is UniswapV2ERC20 {
         bool feeOn = _mintFee(_reserve0, _reserve1);
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         if (_totalSupply == 0) {
-            address migrator = IUniswapV2Factory(factory).migrator();
+            address migrator = INexusSwapFactory(factory).migrator();
             if (msg.sender == migrator) {
                 liquidity = IMigrator(migrator).desiredLiquidity();
                 require(liquidity > 0 && liquidity != uint256(-1), "Bad desired liquidity");
@@ -414,7 +414,7 @@ contract UniswapV2Pair is UniswapV2ERC20 {
         require(to != _token0 && to != _token1, 'NEXUS: INVALID_TO');
         if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
         if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
-        if (data.length > 0) IUniswapV2Callee(to).uniswapV2Call(msg.sender, amount0Out, amount1Out, data);
+        if (data.length > 0) INexusSwapCallee(to).NexusSwapCall(msg.sender, amount0Out, amount1Out, data);
         balance0 = IERC20Uniswap(_token0).balanceOf(address(this));
         balance1 = IERC20Uniswap(_token1).balanceOf(address(this));
         }
@@ -446,14 +446,14 @@ contract UniswapV2Pair is UniswapV2ERC20 {
 }
 
 
-// File contracts/uniswapv2/UniswapV2Factory.sol
+// File contracts/NexusSwap/NexusSwapFactory.sol
 
 
 
 pragma solidity =0.6.12;
 
 
-contract NexusFactory is IUniswapV2Factory {
+contract NexusFactory is INexusSwapFactory {
     address public override feeTo;
     address public override feeToSetter;
     address public override migrator;
@@ -472,7 +472,7 @@ contract NexusFactory is IUniswapV2Factory {
     }
 
     function pairCodeHash() external pure returns (bytes32) {
-        return keccak256(type(UniswapV2Pair).creationCode);
+        return keccak256(type(NexusSwapPair).creationCode);
     }
 
     function createPair(address tokenA, address tokenB) external override returns (address pair) {
@@ -480,12 +480,12 @@ contract NexusFactory is IUniswapV2Factory {
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'NEXUS: ZERO_ADDRESS');
         require(getPair[token0][token1] == address(0), 'NEXUS: PAIR_EXISTS'); // single check is sufficient
-        bytes memory bytecode = type(UniswapV2Pair).creationCode;
+        bytes memory bytecode = type(NexusSwapPair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
-        UniswapV2Pair(pair).initialize(token0, token1);
+        NexusSwapPair(pair).initialize(token0, token1);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
