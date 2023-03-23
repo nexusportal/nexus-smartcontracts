@@ -286,13 +286,13 @@ contract Ownable is OwnableData {
     }
 }
 
-// File contracts/NexusDistributor.sol
+// File contracts/NexusDiffuser.sol
 
 // P1 - P3: OK
 pragma solidity 0.6.12;
 
 // T1 - T4: OK
-contract NexusDistributor is Ownable {
+contract NexusDiffuser is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -385,7 +385,7 @@ contract NexusDistributor is Ownable {
         // Checks
         require(
             token != nexus && token != weth && token != bridge,
-            "NexusDistributor: Invalid bridge"
+            "NexusDiffuser: Invalid bridge"
         );
 
         // Effects
@@ -408,7 +408,7 @@ contract NexusDistributor is Ownable {
     // C6: It's not a fool proof solution, but it prevents flash loans, so here it's ok to use tx.origin
     modifier onlyEOA() {
         // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
-        require(msg.sender == tx.origin, "NexusDistributor: must use EOA");
+        require(msg.sender == tx.origin, "NexusDiffuser: must use EOA");
         _;
     }
 
@@ -512,7 +512,7 @@ contract NexusDistributor is Ownable {
     function _convert(address token0, address token1) internal {
         // Interactions
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(token0, token1));
-        require(address(pair) != address(0), "NexusDistributor: Invalid pair");
+        require(address(pair) != address(0), "NexusDiffuser: Invalid pair");
         IERC20(address(pair)).safeTransfer(
             address(pair),
             pair.balanceOf(address(this))
@@ -615,7 +615,7 @@ contract NexusDistributor is Ownable {
         );
         require(
             address(pair) != address(0),
-            "NexusDistributor: Cannot convert"
+            "NexusDiffuser: Cannot convert"
         );
 
         // Interactions
@@ -739,7 +739,7 @@ contract NexusDistributor is Ownable {
     function setNexusTreasury(address _treasury) external {
         require(
             msg.sender == nexusTreasurySetter,
-            "NexusDistributor: FORBIDDEN"
+            "NexusDiffuser: FORBIDDEN"
         );
         nexusTreasury = _treasury;
     }
@@ -747,18 +747,18 @@ contract NexusDistributor is Ownable {
     function setNexusTreasurySetter(address _nexusTreasurySetter) external {
         require(
             msg.sender == nexusTreasurySetter,
-            "NexusDistributor: FORBIDDEN"
+            "NexusDiffuser: FORBIDDEN"
         );
         nexusTreasurySetter = _nexusTreasurySetter;
     }
 
     function setNexusBurn(address _nexusBurn) external {
-        require(msg.sender == nexusBurnSetter, "NexusDistributor: FORBIDDEN");
+        require(msg.sender == nexusBurnSetter, "NexusDiffuser: FORBIDDEN");
         nexusBurn = _nexusBurn;
     }
 
     function setNexusBurnSetter(address _nexusBurnSetter) external {
-        require(msg.sender == nexusBurnSetter, "NexusDistributor: FORBIDDEN");
+        require(msg.sender == nexusBurnSetter, "NexusDiffuser: FORBIDDEN");
         nexusBurnSetter = _nexusBurnSetter;
     }
 
