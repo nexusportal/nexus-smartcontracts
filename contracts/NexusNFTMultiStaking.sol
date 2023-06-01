@@ -2222,6 +2222,10 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
                 }
             }
         }
+
+        if(lock.unlockTime < block.timestamp && lock.lockMode != 0) {
+            shortenLockTime(0);
+        }
     }
 
     function rewardBackToPool() private {
@@ -2734,7 +2738,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         emit OnLockDurationIncreased(msg.sender, unlockTime);
     }
 
-    function shortenLockTime(uint256 lockMode) external nonReentrant {
+    function shortenLockTime(uint256 lockMode) internal  {
         require(lockMode >= 0 && lockMode < 5, "Invalid lock mode");
 
         TokenLock storage lock = userLocks[msg.sender];
@@ -2748,8 +2752,6 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         uint256 reducedWeight = ((lock.lockedAmount + lock.nftWeight) *
             (LOCK_TIME_MULTIPLIER[lock.lockMode] -
                 LOCK_TIME_MULTIPLIER[lockMode])) / 10;
-
-        harvest();
 
         totalPoolWeight -= reducedWeight;
 
