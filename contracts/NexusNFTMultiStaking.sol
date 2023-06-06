@@ -2223,8 +2223,20 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             }
         }
 
-        if(lock.unlockTime < block.timestamp && lock.lockMode != 0) {
-            shortenLockTime(0);
+        if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
+            uint256 reducedWeight = ((lock.lockedAmount + lock.nftWeight) *
+                (LOCK_TIME_MULTIPLIER[lock.lockMode] -
+                    LOCK_TIME_MULTIPLIER[0])) / 10;
+
+            totalPoolWeight -= reducedWeight;
+
+            nexusAmountForLock[lock.lockMode] -= lock.lockedAmount;
+
+            nexusAmountForLock[0] += lock.lockedAmount;
+
+            lock.totalWeight -= reducedWeight;
+
+            lock.lockMode = 0;
         }
     }
 
