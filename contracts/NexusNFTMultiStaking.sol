@@ -2184,7 +2184,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         }
     }
 
-    function harvest() public {
+    function _harvest() internal {
         TokenLock storage lock = userLocks[msg.sender];
 
         if (lock.totalWeight > 0) {
@@ -2222,21 +2222,14 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
                 }
             }
         }
+    }
 
+    function harvest() public {
+        _harvest();
+
+        TokenLock storage lock = userLocks[msg.sender];
         if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
-            uint256 reducedWeight = ((lock.lockedAmount + lock.nftWeight) *
-                (LOCK_TIME_MULTIPLIER[lock.lockMode] -
-                    LOCK_TIME_MULTIPLIER[0])) / 10;
-
-            totalPoolWeight -= reducedWeight;
-
-            nexusAmountForLock[lock.lockMode] -= lock.lockedAmount;
-
-            nexusAmountForLock[0] += lock.lockedAmount;
-
-            lock.totalWeight -= reducedWeight;
-
-            lock.lockMode = 0;
+            shortenLockTime(0);
         }
     }
 
@@ -2416,7 +2409,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             }
         }
 
-        harvest();
+        _harvest();
 
         lock.nftWeight = newWeight;
 
@@ -2453,7 +2446,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             tokenId
         );
 
-        harvest();
+        _harvest();
 
         userNFTBalances[_msgSender()].add(tokenId);
 
@@ -2495,7 +2488,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         userNFTBalances[_msgSender()].remove(tokenId);
 
-        harvest();
+        _harvest();
 
         uint256 oldWeight = lock.nftWeight;
 
@@ -2578,7 +2571,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             }
         }
 
-        harvest();
+        _harvest();
 
         if (lock.nexusLock >= minNexusCollateralAmount * count) {
             withdrawNexusBar(minNexusCollateralAmount * count);
@@ -2686,7 +2679,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             }
         }
 
-        harvest();
+        _harvest();
 
         totalPoolWeight += addeddWeight;
 
@@ -2731,7 +2724,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             (LOCK_TIME_MULTIPLIER[lockMode] -
                 LOCK_TIME_MULTIPLIER[lock.lockMode])) / 10;
 
-        harvest();
+        _harvest();
 
         totalPoolWeight += addeddWeight;
 
@@ -2803,7 +2796,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         amount = afterBalance - beforeBalance;
 
-        harvest();
+        _harvest();
 
         uint256 addeddWeight = ((amount) *
             LOCK_TIME_MULTIPLIER[lock.lockMode]) / 10;
@@ -2837,7 +2830,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             mode = 1;
             rewardBackToPool();
         } else {
-            harvest();
+            _harvest();
         }
 
         uint256 tokenFee = (amount * 50 * mode) / 100;
