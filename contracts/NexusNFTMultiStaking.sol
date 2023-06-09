@@ -1,5 +1,3 @@
-
-
 // File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.3
 
 // SPDX-License-Identifier: MIT
@@ -28,9 +26,7 @@ interface IERC165 {
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
-
 // File @openzeppelin/contracts/token/ERC721/IERC721.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC721/IERC721.sol)
 
@@ -43,17 +39,29 @@ interface IERC721 is IERC165 {
     /**
      * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
      */
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 indexed tokenId
+    );
 
     /**
      * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
      */
-    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+    event Approval(
+        address indexed owner,
+        address indexed approved,
+        uint256 indexed tokenId
+    );
 
     /**
      * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
      */
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+    event ApprovalForAll(
+        address indexed owner,
+        address indexed operator,
+        bool approved
+    );
 
     /**
      * @dev Returns the number of tokens in ``owner``'s account.
@@ -163,19 +171,23 @@ interface IERC721 is IERC165 {
      *
      * - `tokenId` must exist.
      */
-    function getApproved(uint256 tokenId) external view returns (address operator);
+    function getApproved(uint256 tokenId)
+        external
+        view
+        returns (address operator);
 
     /**
      * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
      *
      * See {setApprovalForAll}
      */
-    function isApprovedForAll(address owner, address operator) external view returns (bool);
+    function isApprovedForAll(address owner, address operator)
+        external
+        view
+        returns (bool);
 }
 
-
 // File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)
 
@@ -197,7 +209,11 @@ interface IERC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 
     /**
      * @dev Returns the amount of tokens in existence.
@@ -225,7 +241,10 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender) external view returns (uint256);
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -259,9 +278,7 @@ interface IERC20 {
     ) external returns (bool);
 }
 
-
 // File @openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol@v4.7.3
-
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/draft-IERC20Permit.sol)
 
@@ -323,9 +340,7 @@ interface IERC20Permit {
     function DOMAIN_SEPARATOR() external view returns (bytes32);
 }
 
-
 // File @openzeppelin/contracts/utils/Address.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.7.0) (utils/Address.sol)
 
@@ -386,10 +401,16 @@ library Address {
      * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+        require(
+            address(this).balance >= amount,
+            "Address: insufficient balance"
+        );
 
         (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
+        require(
+            success,
+            "Address: unable to send value, recipient may have reverted"
+        );
     }
 
     /**
@@ -410,7 +431,10 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+    function functionCall(address target, bytes memory data)
+        internal
+        returns (bytes memory)
+    {
         return functionCall(target, data, "Address: low-level call failed");
     }
 
@@ -444,7 +468,13 @@ library Address {
         bytes memory data,
         uint256 value
     ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+        return
+            functionCallWithValue(
+                target,
+                data,
+                value,
+                "Address: low-level call with value failed"
+            );
     }
 
     /**
@@ -459,10 +489,15 @@ library Address {
         uint256 value,
         string memory errorMessage
     ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
+        require(
+            address(this).balance >= value,
+            "Address: insufficient balance for call"
+        );
         require(isContract(target), "Address: call to non-contract");
 
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        (bool success, bytes memory returndata) = target.call{value: value}(
+            data
+        );
         return verifyCallResult(success, returndata, errorMessage);
     }
 
@@ -472,8 +507,17 @@ library Address {
      *
      * _Available since v3.3._
      */
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
+    function functionStaticCall(address target, bytes memory data)
+        internal
+        view
+        returns (bytes memory)
+    {
+        return
+            functionStaticCall(
+                target,
+                data,
+                "Address: low-level static call failed"
+            );
     }
 
     /**
@@ -499,8 +543,16 @@ library Address {
      *
      * _Available since v3.4._
      */
-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+    function functionDelegateCall(address target, bytes memory data)
+        internal
+        returns (bytes memory)
+    {
+        return
+            functionDelegateCall(
+                target,
+                data,
+                "Address: low-level delegate call failed"
+            );
     }
 
     /**
@@ -549,15 +601,11 @@ library Address {
     }
 }
 
-
 // File @openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC20/utils/SafeERC20.sol)
 
 pragma solidity ^0.8.0;
-
-
 
 /**
  * @title SafeERC20
@@ -576,7 +624,10 @@ library SafeERC20 {
         address to,
         uint256 value
     ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
+        _callOptionalReturn(
+            token,
+            abi.encodeWithSelector(token.transfer.selector, to, value)
+        );
     }
 
     function safeTransferFrom(
@@ -585,7 +636,10 @@ library SafeERC20 {
         address to,
         uint256 value
     ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
+        _callOptionalReturn(
+            token,
+            abi.encodeWithSelector(token.transferFrom.selector, from, to, value)
+        );
     }
 
     /**
@@ -607,7 +661,10 @@ library SafeERC20 {
             (value == 0) || (token.allowance(address(this), spender) == 0),
             "SafeERC20: approve from non-zero to non-zero allowance"
         );
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, value));
+        _callOptionalReturn(
+            token,
+            abi.encodeWithSelector(token.approve.selector, spender, value)
+        );
     }
 
     function safeIncreaseAllowance(
@@ -616,7 +673,14 @@ library SafeERC20 {
         uint256 value
     ) internal {
         uint256 newAllowance = token.allowance(address(this), spender) + value;
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+        _callOptionalReturn(
+            token,
+            abi.encodeWithSelector(
+                token.approve.selector,
+                spender,
+                newAllowance
+            )
+        );
     }
 
     function safeDecreaseAllowance(
@@ -626,9 +690,19 @@ library SafeERC20 {
     ) internal {
         unchecked {
             uint256 oldAllowance = token.allowance(address(this), spender);
-            require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
+            require(
+                oldAllowance >= value,
+                "SafeERC20: decreased allowance below zero"
+            );
             uint256 newAllowance = oldAllowance - value;
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+            _callOptionalReturn(
+                token,
+                abi.encodeWithSelector(
+                    token.approve.selector,
+                    spender,
+                    newAllowance
+                )
+            );
         }
     }
 
@@ -645,7 +719,10 @@ library SafeERC20 {
         uint256 nonceBefore = token.nonces(owner);
         token.permit(owner, spender, value, deadline, v, r, s);
         uint256 nonceAfter = token.nonces(owner);
-        require(nonceAfter == nonceBefore + 1, "SafeERC20: permit did not succeed");
+        require(
+            nonceAfter == nonceBefore + 1,
+            "SafeERC20: permit did not succeed"
+        );
     }
 
     /**
@@ -659,17 +736,21 @@ library SafeERC20 {
         // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
+        bytes memory returndata = address(token).functionCall(
+            data,
+            "SafeERC20: low-level call failed"
+        );
         if (returndata.length > 0) {
             // Return data is optional
-            require(abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
+            require(
+                abi.decode(returndata, (bool)),
+                "SafeERC20: ERC20 operation did not succeed"
+            );
         }
     }
 }
 
-
 // File @openzeppelin/contracts/utils/structs/EnumerableSet.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.7.0) (utils/structs/EnumerableSet.sol)
 
@@ -786,7 +867,11 @@ library EnumerableSet {
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function _contains(Set storage set, bytes32 value) private view returns (bool) {
+    function _contains(Set storage set, bytes32 value)
+        private
+        view
+        returns (bool)
+    {
         return set._indexes[value] != 0;
     }
 
@@ -807,7 +892,11 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function _at(Set storage set, uint256 index) private view returns (bytes32) {
+    function _at(Set storage set, uint256 index)
+        private
+        view
+        returns (bytes32)
+    {
         return set._values[index];
     }
 
@@ -835,7 +924,10 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+    function add(Bytes32Set storage set, bytes32 value)
+        internal
+        returns (bool)
+    {
         return _add(set._inner, value);
     }
 
@@ -845,14 +937,21 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+    function remove(Bytes32Set storage set, bytes32 value)
+        internal
+        returns (bool)
+    {
         return _remove(set._inner, value);
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {
+    function contains(Bytes32Set storage set, bytes32 value)
+        internal
+        view
+        returns (bool)
+    {
         return _contains(set._inner, value);
     }
 
@@ -873,7 +972,11 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
+    function at(Bytes32Set storage set, uint256 index)
+        internal
+        view
+        returns (bytes32)
+    {
         return _at(set._inner, index);
     }
 
@@ -885,7 +988,11 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {
+    function values(Bytes32Set storage set)
+        internal
+        view
+        returns (bytes32[] memory)
+    {
         return _values(set._inner);
     }
 
@@ -901,7 +1008,10 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(AddressSet storage set, address value) internal returns (bool) {
+    function add(AddressSet storage set, address value)
+        internal
+        returns (bool)
+    {
         return _add(set._inner, bytes32(uint256(uint160(value))));
     }
 
@@ -911,14 +1021,21 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(AddressSet storage set, address value) internal returns (bool) {
+    function remove(AddressSet storage set, address value)
+        internal
+        returns (bool)
+    {
         return _remove(set._inner, bytes32(uint256(uint160(value))));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(AddressSet storage set, address value) internal view returns (bool) {
+    function contains(AddressSet storage set, address value)
+        internal
+        view
+        returns (bool)
+    {
         return _contains(set._inner, bytes32(uint256(uint160(value))));
     }
 
@@ -939,7 +1056,11 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressSet storage set, uint256 index) internal view returns (address) {
+    function at(AddressSet storage set, uint256 index)
+        internal
+        view
+        returns (address)
+    {
         return address(uint160(uint256(_at(set._inner, index))));
     }
 
@@ -951,7 +1072,11 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(AddressSet storage set) internal view returns (address[] memory) {
+    function values(AddressSet storage set)
+        internal
+        view
+        returns (address[] memory)
+    {
         bytes32[] memory store = _values(set._inner);
         address[] memory result;
 
@@ -985,14 +1110,21 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(UintSet storage set, uint256 value) internal returns (bool) {
+    function remove(UintSet storage set, uint256 value)
+        internal
+        returns (bool)
+    {
         return _remove(set._inner, bytes32(value));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(UintSet storage set, uint256 value) internal view returns (bool) {
+    function contains(UintSet storage set, uint256 value)
+        internal
+        view
+        returns (bool)
+    {
         return _contains(set._inner, bytes32(value));
     }
 
@@ -1013,7 +1145,11 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintSet storage set, uint256 index) internal view returns (uint256) {
+    function at(UintSet storage set, uint256 index)
+        internal
+        view
+        returns (uint256)
+    {
         return uint256(_at(set._inner, index));
     }
 
@@ -1025,7 +1161,11 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(UintSet storage set) internal view returns (uint256[] memory) {
+    function values(UintSet storage set)
+        internal
+        view
+        returns (uint256[] memory)
+    {
         bytes32[] memory store = _values(set._inner);
         uint256[] memory result;
 
@@ -1038,9 +1178,7 @@ library EnumerableSet {
     }
 }
 
-
 // File @openzeppelin/contracts/utils/Context.sol@v4.7.3
-
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -1066,9 +1204,7 @@ abstract contract Context {
     }
 }
 
-
 // File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/IERC721Receiver.sol)
 
@@ -1097,9 +1233,7 @@ interface IERC721Receiver {
     ) external returns (bytes4);
 }
 
-
 // File @openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol@v4.7.3
-
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/utils/ERC721Holder.sol)
 
@@ -1127,9 +1261,7 @@ contract ERC721Holder is IERC721Receiver {
     }
 }
 
-
 // File @openzeppelin/contracts/access/Ownable.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
 
@@ -1150,7 +1282,10 @@ pragma solidity ^0.8.0;
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -1197,7 +1332,10 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
         _transferOwnership(newOwner);
     }
 
@@ -1212,9 +1350,7 @@ abstract contract Ownable is Context {
     }
 }
 
-
 // File @openzeppelin/contracts/security/ReentrancyGuard.sol@v4.7.3
-
 
 // OpenZeppelin Contracts v4.4.1 (security/ReentrancyGuard.sol)
 
@@ -1279,9 +1415,7 @@ abstract contract ReentrancyGuard {
     }
 }
 
-
 // File @openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/extensions/IERC721Enumerable.sol)
 
@@ -1301,7 +1435,10 @@ interface IERC721Enumerable is IERC721 {
      * @dev Returns a token ID owned by `owner` at a given `index` of its token list.
      * Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
      */
-    function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256);
+    function tokenOfOwnerByIndex(address owner, uint256 index)
+        external
+        view
+        returns (uint256);
 
     /**
      * @dev Returns a token ID at a given `index` of all the tokens stored by the contract.
@@ -1310,9 +1447,7 @@ interface IERC721Enumerable is IERC721 {
     function tokenByIndex(uint256 index) external view returns (uint256);
 }
 
-
 // File @openzeppelin/contracts/utils/structs/EnumerableMap.sol@v4.7.3
-
 
 // OpenZeppelin Contracts (last updated v4.7.0) (utils/structs/EnumerableMap.sol)
 
@@ -1394,7 +1529,10 @@ library EnumerableMap {
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
-    function remove(Bytes32ToBytes32Map storage map, bytes32 key) internal returns (bool) {
+    function remove(Bytes32ToBytes32Map storage map, bytes32 key)
+        internal
+        returns (bool)
+    {
         delete map._values[key];
         return map._keys.remove(key);
     }
@@ -1402,14 +1540,22 @@ library EnumerableMap {
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
-    function contains(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool) {
+    function contains(Bytes32ToBytes32Map storage map, bytes32 key)
+        internal
+        view
+        returns (bool)
+    {
         return map._keys.contains(key);
     }
 
     /**
      * @dev Returns the number of key-value pairs in the map. O(1).
      */
-    function length(Bytes32ToBytes32Map storage map) internal view returns (uint256) {
+    function length(Bytes32ToBytes32Map storage map)
+        internal
+        view
+        returns (uint256)
+    {
         return map._keys.length();
     }
 
@@ -1423,7 +1569,11 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToBytes32Map storage map, uint256 index) internal view returns (bytes32, bytes32) {
+    function at(Bytes32ToBytes32Map storage map, uint256 index)
+        internal
+        view
+        returns (bytes32, bytes32)
+    {
         bytes32 key = map._keys.at(index);
         return (key, map._values[key]);
     }
@@ -1432,7 +1582,11 @@ library EnumerableMap {
      * @dev Tries to returns the value associated with `key`.  O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
+    function tryGet(Bytes32ToBytes32Map storage map, bytes32 key)
+        internal
+        view
+        returns (bool, bytes32)
+    {
         bytes32 value = map._values[key];
         if (value == bytes32(0)) {
             return (contains(map, key), bytes32(0));
@@ -1448,9 +1602,16 @@ library EnumerableMap {
      *
      * - `key` must be in the map.
      */
-    function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
+    function get(Bytes32ToBytes32Map storage map, bytes32 key)
+        internal
+        view
+        returns (bytes32)
+    {
         bytes32 value = map._values[key];
-        require(value != 0 || contains(map, key), "EnumerableMap: nonexistent key");
+        require(
+            value != 0 || contains(map, key),
+            "EnumerableMap: nonexistent key"
+        );
         return value;
     }
 
@@ -1496,14 +1657,21 @@ library EnumerableMap {
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
-    function remove(UintToUintMap storage map, uint256 key) internal returns (bool) {
+    function remove(UintToUintMap storage map, uint256 key)
+        internal
+        returns (bool)
+    {
         return remove(map._inner, bytes32(key));
     }
 
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
-    function contains(UintToUintMap storage map, uint256 key) internal view returns (bool) {
+    function contains(UintToUintMap storage map, uint256 key)
+        internal
+        view
+        returns (bool)
+    {
         return contains(map._inner, bytes32(key));
     }
 
@@ -1523,7 +1691,11 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToUintMap storage map, uint256 index) internal view returns (uint256, uint256) {
+    function at(UintToUintMap storage map, uint256 index)
+        internal
+        view
+        returns (uint256, uint256)
+    {
         (bytes32 key, bytes32 value) = at(map._inner, index);
         return (uint256(key), uint256(value));
     }
@@ -1532,7 +1704,11 @@ library EnumerableMap {
      * @dev Tries to returns the value associated with `key`.  O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool, uint256) {
+    function tryGet(UintToUintMap storage map, uint256 key)
+        internal
+        view
+        returns (bool, uint256)
+    {
         (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
         return (success, uint256(value));
     }
@@ -1544,7 +1720,11 @@ library EnumerableMap {
      *
      * - `key` must be in the map.
      */
-    function get(UintToUintMap storage map, uint256 key) internal view returns (uint256) {
+    function get(UintToUintMap storage map, uint256 key)
+        internal
+        view
+        returns (uint256)
+    {
         return uint256(get(map._inner, bytes32(key)));
     }
 
@@ -1588,21 +1768,32 @@ library EnumerableMap {
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
-    function remove(UintToAddressMap storage map, uint256 key) internal returns (bool) {
+    function remove(UintToAddressMap storage map, uint256 key)
+        internal
+        returns (bool)
+    {
         return remove(map._inner, bytes32(key));
     }
 
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
-    function contains(UintToAddressMap storage map, uint256 key) internal view returns (bool) {
+    function contains(UintToAddressMap storage map, uint256 key)
+        internal
+        view
+        returns (bool)
+    {
         return contains(map._inner, bytes32(key));
     }
 
     /**
      * @dev Returns the number of elements in the map. O(1).
      */
-    function length(UintToAddressMap storage map) internal view returns (uint256) {
+    function length(UintToAddressMap storage map)
+        internal
+        view
+        returns (uint256)
+    {
         return length(map._inner);
     }
 
@@ -1615,7 +1806,11 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256, address) {
+    function at(UintToAddressMap storage map, uint256 index)
+        internal
+        view
+        returns (uint256, address)
+    {
         (bytes32 key, bytes32 value) = at(map._inner, index);
         return (uint256(key), address(uint160(uint256(value))));
     }
@@ -1626,7 +1821,11 @@ library EnumerableMap {
      *
      * _Available since v3.4._
      */
-    function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool, address) {
+    function tryGet(UintToAddressMap storage map, uint256 key)
+        internal
+        view
+        returns (bool, address)
+    {
         (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
         return (success, address(uint160(uint256(value))));
     }
@@ -1638,7 +1837,11 @@ library EnumerableMap {
      *
      * - `key` must be in the map.
      */
-    function get(UintToAddressMap storage map, uint256 key) internal view returns (address) {
+    function get(UintToAddressMap storage map, uint256 key)
+        internal
+        view
+        returns (address)
+    {
         return address(uint160(uint256(get(map._inner, bytes32(key)))));
     }
 
@@ -1653,7 +1856,10 @@ library EnumerableMap {
         uint256 key,
         string memory errorMessage
     ) internal view returns (address) {
-        return address(uint160(uint256(get(map._inner, bytes32(key), errorMessage))));
+        return
+            address(
+                uint160(uint256(get(map._inner, bytes32(key), errorMessage)))
+            );
     }
 
     // AddressToUintMap
@@ -1682,21 +1888,32 @@ library EnumerableMap {
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
-    function remove(AddressToUintMap storage map, address key) internal returns (bool) {
+    function remove(AddressToUintMap storage map, address key)
+        internal
+        returns (bool)
+    {
         return remove(map._inner, bytes32(uint256(uint160(key))));
     }
 
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
-    function contains(AddressToUintMap storage map, address key) internal view returns (bool) {
+    function contains(AddressToUintMap storage map, address key)
+        internal
+        view
+        returns (bool)
+    {
         return contains(map._inner, bytes32(uint256(uint160(key))));
     }
 
     /**
      * @dev Returns the number of elements in the map. O(1).
      */
-    function length(AddressToUintMap storage map) internal view returns (uint256) {
+    function length(AddressToUintMap storage map)
+        internal
+        view
+        returns (uint256)
+    {
         return length(map._inner);
     }
 
@@ -1709,7 +1926,11 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressToUintMap storage map, uint256 index) internal view returns (address, uint256) {
+    function at(AddressToUintMap storage map, uint256 index)
+        internal
+        view
+        returns (address, uint256)
+    {
         (bytes32 key, bytes32 value) = at(map._inner, index);
         return (address(uint160(uint256(key))), uint256(value));
     }
@@ -1718,8 +1939,15 @@ library EnumerableMap {
      * @dev Tries to returns the value associated with `key`.  O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(AddressToUintMap storage map, address key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = tryGet(map._inner, bytes32(uint256(uint160(key))));
+    function tryGet(AddressToUintMap storage map, address key)
+        internal
+        view
+        returns (bool, uint256)
+    {
+        (bool success, bytes32 value) = tryGet(
+            map._inner,
+            bytes32(uint256(uint160(key)))
+        );
         return (success, uint256(value));
     }
 
@@ -1730,7 +1958,11 @@ library EnumerableMap {
      *
      * - `key` must be in the map.
      */
-    function get(AddressToUintMap storage map, address key) internal view returns (uint256) {
+    function get(AddressToUintMap storage map, address key)
+        internal
+        view
+        returns (uint256)
+    {
         return uint256(get(map._inner, bytes32(uint256(uint160(key)))));
     }
 
@@ -1745,7 +1977,10 @@ library EnumerableMap {
         address key,
         string memory errorMessage
     ) internal view returns (uint256) {
-        return uint256(get(map._inner, bytes32(uint256(uint160(key))), errorMessage));
+        return
+            uint256(
+                get(map._inner, bytes32(uint256(uint160(key))), errorMessage)
+            );
     }
 
     // Bytes32ToUintMap
@@ -1774,21 +2009,32 @@ library EnumerableMap {
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
-    function remove(Bytes32ToUintMap storage map, bytes32 key) internal returns (bool) {
+    function remove(Bytes32ToUintMap storage map, bytes32 key)
+        internal
+        returns (bool)
+    {
         return remove(map._inner, key);
     }
 
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
-    function contains(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool) {
+    function contains(Bytes32ToUintMap storage map, bytes32 key)
+        internal
+        view
+        returns (bool)
+    {
         return contains(map._inner, key);
     }
 
     /**
      * @dev Returns the number of elements in the map. O(1).
      */
-    function length(Bytes32ToUintMap storage map) internal view returns (uint256) {
+    function length(Bytes32ToUintMap storage map)
+        internal
+        view
+        returns (uint256)
+    {
         return length(map._inner);
     }
 
@@ -1801,7 +2047,11 @@ library EnumerableMap {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32ToUintMap storage map, uint256 index) internal view returns (bytes32, uint256) {
+    function at(Bytes32ToUintMap storage map, uint256 index)
+        internal
+        view
+        returns (bytes32, uint256)
+    {
         (bytes32 key, bytes32 value) = at(map._inner, index);
         return (key, uint256(value));
     }
@@ -1810,7 +2060,11 @@ library EnumerableMap {
      * @dev Tries to returns the value associated with `key`.  O(1).
      * Does not revert if `key` is not in the map.
      */
-    function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool, uint256) {
+    function tryGet(Bytes32ToUintMap storage map, bytes32 key)
+        internal
+        view
+        returns (bool, uint256)
+    {
         (bool success, bytes32 value) = tryGet(map._inner, key);
         return (success, uint256(value));
     }
@@ -1822,7 +2076,11 @@ library EnumerableMap {
      *
      * - `key` must be in the map.
      */
-    function get(Bytes32ToUintMap storage map, bytes32 key) internal view returns (uint256) {
+    function get(Bytes32ToUintMap storage map, bytes32 key)
+        internal
+        view
+        returns (uint256)
+    {
         return uint256(get(map._inner, key));
     }
 
@@ -1841,9 +2099,7 @@ library EnumerableMap {
     }
 }
 
-
 // File contracts/INexusNFTWeight.sol
-
 
 pragma solidity ^0.8.16;
 
@@ -1854,12 +2110,10 @@ interface INexusNFTWeight {
         returns (uint256 weight);
 }
 
-
 // File contracts/Staking.sol
 
-
-
 pragma solidity ^0.8.16;
+
 contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
     using EnumerableSet for EnumerableSet.UintSet;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
@@ -1961,7 +2215,11 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
     fallback() external payable {}
 
-    constructor(address _nexusToken, address _nexusNFT, address _nexusWeight) {
+    constructor(
+        address _nexusToken,
+        address _nexusNFT,
+        address _nexusWeight
+    ) {
         require(_nexusWeight != address(0), "wrong weighter");
         require(_nexusToken != address(0), "wrong weighter");
         nexusToken = _nexusToken;
@@ -1984,8 +2242,10 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             uint256[] memory result = new uint256[](tokenCount);
             uint256 index;
             for (index = 0; index < tokenCount; index++) {
-                result[index] = IERC721Enumerable(nexusNFT)
-                    .tokenOfOwnerByIndex(address(this), index);
+                result[index] = IERC721Enumerable(nexusNFT).tokenOfOwnerByIndex(
+                    address(this),
+                    index
+                );
             }
             return result;
         }
@@ -2004,8 +2264,10 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             uint256[] memory result = new uint256[](tokenCount);
             uint256 index;
             for (index = 0; index < tokenCount; index++) {
-                result[index] = IERC721Enumerable(nexusNFT)
-                    .tokenOfOwnerByIndex(_owner, index);
+                result[index] = IERC721Enumerable(nexusNFT).tokenOfOwnerByIndex(
+                    _owner,
+                    index
+                );
             }
             return result;
         }
@@ -2319,7 +2581,6 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
     function withdrawNexusBar(uint256 amount) private {
         require(amount > 0, "zero amount");
 
-
         TokenLock storage lock = userLocks[msg.sender];
 
         // require(lock.nexusLock >= amount, "small lock amount");
@@ -2363,7 +2624,10 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         if (lock.lockMode != 0) {
             if (lock.lockedAmount > 0) {
-                require(lock.lockedAmount >= minNexusAmount, "small nexus staked");
+                require(
+                    lock.lockedAmount >= minNexusAmount,
+                    "small nexus staked"
+                );
                 depositNexusBar(minNexusCollateralAmount * count);
             }
         }
@@ -2416,7 +2680,12 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight = addedWeight + lock.totalWeight;
 
         totalPoolWeight += addedWeight;
-        updateDebt();
+        
+        if (lock.unlockTime < block.timestamp) {
+            shortenLockTime(0);
+        } else {
+            updateDebt();
+        }
     }
 
     function NFTStake(uint256 tokenId) public nonReentrant {
@@ -2435,7 +2704,10 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         if (lock.lockMode != 0) {
             if (lock.lockedAmount > 0) {
-                require(lock.lockedAmount >= minNexusAmount, "small nexus staked");
+                require(
+                    lock.lockedAmount >= minNexusAmount,
+                    "small nexus staked"
+                );
                 depositNexusBar(minNexusCollateralAmount);
             }
         }
@@ -2451,8 +2723,9 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         userNFTBalances[_msgSender()].add(tokenId);
 
         uint256 oldWeight = lock.nftWeight;
-        uint256 nexusNFTWeight = INexusNFTWeight(nexusWeight)
-            .nexusNFTWeight(tokenId) * 10**18;
+        uint256 nexusNFTWeight = INexusNFTWeight(nexusWeight).nexusNFTWeight(
+            tokenId
+        ) * 10**18;
         uint256 newWeight = oldWeight + nexusNFTWeight;
 
         lock.nftWeight = newWeight;
@@ -2466,7 +2739,12 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         }
         lock.totalWeight += addedWeight;
         totalPoolWeight += addedWeight;
-        updateDebt();
+
+        if (lock.unlockTime < block.timestamp) {
+            shortenLockTime(0);
+        } else {
+            updateDebt();
+        }
     }
 
     function NFTWithdraw(uint256 tokenId) public nonReentrant {
@@ -2482,7 +2760,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         if (lock.nexusLock >= minNexusCollateralAmount) {
             withdrawNexusBar(minNexusCollateralAmount);
-        }else if(lock.nexusLock > 0){
+        } else if (lock.nexusLock > 0) {
             withdrawNexusBar(lock.nexusLock);
         }
 
@@ -2492,8 +2770,9 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         uint256 oldWeight = lock.nftWeight;
 
-        uint256 nexusNFTWeight = INexusNFTWeight(nexusWeight)
-            .nexusNFTWeight(tokenId) * 10**18;
+        uint256 nexusNFTWeight = INexusNFTWeight(nexusWeight).nexusNFTWeight(
+            tokenId
+        ) * 10**18;
 
         uint256 newWeight = oldWeight - nexusNFTWeight;
 
@@ -2579,7 +2858,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         if (lock.nexusLock >= minNexusCollateralAmount * count) {
             withdrawNexusBar(minNexusCollateralAmount * count);
-        }else if(lock.nexusLock > 0){
+        } else if (lock.nexusLock > 0) {
             withdrawNexusBar(lock.nexusLock);
         }
 
@@ -2674,12 +2953,14 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
                 10;
 
             if (lockMode > 0) {
-
                 require(amount >= minNexusAmount, "small nexus amount for nft");
 
                 uint256 count = userStakedNFTCount(msg.sender);
 
-                if (count > 0 && minNexusCollateralAmount * count > lock.nexusLock) {
+                if (
+                    count > 0 &&
+                    minNexusCollateralAmount * count > lock.nexusLock
+                ) {
                     depositNexusBar(
                         minNexusCollateralAmount * count - lock.nexusLock
                     );
@@ -2696,10 +2977,10 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight += addeddWeight;
         lock.lockedAmount += amount;
 
-        if(lock.unlockTime < unlockTime){
+        if (lock.unlockTime < unlockTime) {
             lock.unlockTime = unlockTime;
         }
-       
+
         lock.lockMode = lockMode;
         updateDebt();
 
@@ -2751,7 +3032,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         emit OnLockDurationIncreased(msg.sender, unlockTime);
     }
 
-    function shortenLockTime(uint256 lockMode) internal  {
+    function shortenLockTime(uint256 lockMode) internal {
         require(lockMode >= 0 && lockMode < 5, "Invalid lock mode");
 
         TokenLock storage lock = userLocks[msg.sender];
