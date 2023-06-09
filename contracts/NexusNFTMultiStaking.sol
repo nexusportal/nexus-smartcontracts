@@ -2681,7 +2681,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         totalPoolWeight += addedWeight;
         
-        if (lock.unlockTime < block.timestamp) {
+        if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
             shortenLockTime(0);
         } else {
             updateDebt();
@@ -2740,7 +2740,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight += addedWeight;
         totalPoolWeight += addedWeight;
 
-        if (lock.unlockTime < block.timestamp) {
+        if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
             shortenLockTime(0);
         } else {
             updateDebt();
@@ -2794,7 +2794,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight -= reduceddWeight;
         totalPoolWeight -= reduceddWeight;
 
-        if (lock.unlockTime < block.timestamp) {
+        if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
             shortenLockTime(0);
         } else {
             updateDebt();
@@ -2867,7 +2867,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight -= reduceddWeight;
         totalPoolWeight -= reduceddWeight;
 
-        if (lock.unlockTime < block.timestamp) {
+        if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
             shortenLockTime(0);
         } else {
             updateDebt();
@@ -3097,7 +3097,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight += addeddWeight;
         lock.lockedAmount += amount;
 
-        if (lock.unlockTime < block.timestamp) {
+        if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
             shortenLockTime(0);
         } else {
             updateDebt();
@@ -3165,7 +3165,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             lock.totalWeight -= reducedWeight;
         }
 
-        if (lock.unlockTime < block.timestamp) {
+        if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
             shortenLockTime(0);
         } else {
             updateDebt();
