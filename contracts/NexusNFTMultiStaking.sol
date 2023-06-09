@@ -2184,7 +2184,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         }
     }
 
-    function harvest() public {
+    function _harvest() internal {
         TokenLock storage lock = userLocks[msg.sender];
 
         if (lock.totalWeight > 0) {
@@ -2222,7 +2222,12 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
                 }
             }
         }
+    }
 
+    function harvest() public {
+        _harvest();
+
+        TokenLock storage lock = userLocks[msg.sender];
         if (lock.unlockTime < block.timestamp && lock.lockMode > 0) {
             shortenLockTime(0);
         }
@@ -2404,7 +2409,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             }
         }
 
-        harvest();
+        _harvest();
 
         lock.nftWeight = newWeight;
 
@@ -2441,7 +2446,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             tokenId
         );
 
-        harvest();
+        _harvest();
 
         userNFTBalances[_msgSender()].add(tokenId);
 
@@ -2483,7 +2488,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         userNFTBalances[_msgSender()].remove(tokenId);
 
-        harvest();
+        _harvest();
 
         uint256 oldWeight = lock.nftWeight;
 
@@ -2510,11 +2515,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight -= reduceddWeight;
         totalPoolWeight -= reduceddWeight;
 
-        if (lock.unlockTime < block.timestamp) {
-            shortenLockTime(0);
-        } else {
-            updateDebt();
-        }
+        updateDebt();
 
         if (lock.lockedAmount == 0) {
             if (userStakedNFTCount(msg.sender) == 0) {
@@ -2570,7 +2571,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             }
         }
 
-        harvest();
+        _harvest();
 
         if (lock.nexusLock >= minNexusCollateralAmount * count) {
             withdrawNexusBar(minNexusCollateralAmount * count);
@@ -2583,11 +2584,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight -= reduceddWeight;
         totalPoolWeight -= reduceddWeight;
 
-        if (lock.unlockTime < block.timestamp) {
-            shortenLockTime(0);
-        } else {
-            updateDebt();
-        }
+        updateDebt();
 
         if (lock.lockedAmount == 0) {
             if (userStakedNFTCount(msg.sender) == 0) {
@@ -2682,7 +2679,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             }
         }
 
-        harvest();
+        _harvest();
 
         totalPoolWeight += addeddWeight;
 
@@ -2727,7 +2724,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             (LOCK_TIME_MULTIPLIER[lockMode] -
                 LOCK_TIME_MULTIPLIER[lock.lockMode])) / 10;
 
-        harvest();
+        _harvest();
 
         totalPoolWeight += addeddWeight;
 
@@ -2799,7 +2796,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
         amount = afterBalance - beforeBalance;
 
-        harvest();
+        _harvest();
 
         uint256 addeddWeight = ((amount) *
             LOCK_TIME_MULTIPLIER[lock.lockMode]) / 10;
@@ -2811,11 +2808,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight += addeddWeight;
         lock.lockedAmount += amount;
 
-        if (lock.unlockTime < block.timestamp) {
-            shortenLockTime(0);
-        } else {
-            updateDebt();
-        }
+        updateDebt();
 
         emit OnLockAmountIncreased(msg.sender, amount);
     }
@@ -2837,7 +2830,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             mode = 1;
             rewardBackToPool();
         } else {
-            harvest();
+            _harvest();
         }
 
         uint256 tokenFee = (amount * 50 * mode) / 100;
@@ -2879,11 +2872,7 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             lock.totalWeight -= reducedWeight;
         }
 
-        if (lock.unlockTime < block.timestamp) {
-            shortenLockTime(0);
-        } else {
-            updateDebt();
-        }
+        updateDebt();
 
         if (lock.lockedAmount == 0) {
             emit OnTokenUnlock(msg.sender);
