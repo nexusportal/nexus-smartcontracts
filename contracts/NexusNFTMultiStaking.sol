@@ -2515,7 +2515,11 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight -= reduceddWeight;
         totalPoolWeight -= reduceddWeight;
 
-        updateDebt();
+        if (lock.unlockTime < block.timestamp) {
+            shortenLockTime(0);
+        } else {
+            updateDebt();
+        }
 
         if (lock.lockedAmount == 0) {
             if (userStakedNFTCount(msg.sender) == 0) {
@@ -2584,7 +2588,11 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight -= reduceddWeight;
         totalPoolWeight -= reduceddWeight;
 
-        updateDebt();
+        if (lock.unlockTime < block.timestamp) {
+            shortenLockTime(0);
+        } else {
+            updateDebt();
+        }
 
         if (lock.lockedAmount == 0) {
             if (userStakedNFTCount(msg.sender) == 0) {
@@ -2808,7 +2816,11 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         lock.totalWeight += addeddWeight;
         lock.lockedAmount += amount;
 
-        updateDebt();
+        if (lock.unlockTime < block.timestamp) {
+            shortenLockTime(0);
+        } else {
+            updateDebt();
+        }
 
         emit OnLockAmountIncreased(msg.sender, amount);
     }
@@ -2872,7 +2884,11 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
             lock.totalWeight -= reducedWeight;
         }
 
-        updateDebt();
+        if (lock.unlockTime < block.timestamp) {
+            shortenLockTime(0);
+        } else {
+            updateDebt();
+        }
 
         if (lock.lockedAmount == 0) {
             emit OnTokenUnlock(msg.sender);
