@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity ^0.8.12;
 
 import "./NexusToken.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./Utils/MultiOwnable.sol";
 
-
-contract NexusGenerator is Ownable {
+contract NexusGenerator is MultiOwnable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     // Info of each user.
@@ -35,6 +35,7 @@ contract NexusGenerator is Ownable {
     NexusToken public nexus;
     // Dev address.
     address public multiStakingDistributor;
+
     // Block number when bonus NXS period ends.
     uint256 public bonusEndBlock;
     // NXS tokens % distributed to multistaking.
@@ -65,7 +66,7 @@ contract NexusGenerator is Ownable {
         uint256 _nexusPerBlock,
         uint256 _startBlock,
         uint256 _bonusEndBlock
-    ) public {
+    ) {
         nexus = _nexus;
         multiStakingDistributor = _multiStakingDistributor;
         nexusPerBlock = _nexusPerBlock;
@@ -87,8 +88,9 @@ contract NexusGenerator is Ownable {
         if (_withUpdate) {
             massUpdatePools();
         }
-        uint256 lastRewardBlock =
-            block.number > startBlock ? block.number : startBlock;
+        uint256 lastRewardBlock = block.number > startBlock
+            ? block.number
+            : startBlock;
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
         poolInfo.push(
             PoolInfo({
@@ -115,13 +117,11 @@ contract NexusGenerator is Ownable {
         poolInfo[_pid].allocPoint = _allocPoint;
     }
 
-
     // Return reward multiplier over the given _from to _to block.
-    function getMultiplier(uint256 _from, uint256 _to)
-        public
-        view
-        returns (uint256)
-    {
+    function getMultiplier(
+        uint256 _from,
+        uint256 _to
+    ) public view returns (uint256) {
         if (_to <= bonusEndBlock) {
             return _to.sub(_from).mul(BONUS_MULTIPLIER);
         } else if (_from >= bonusEndBlock) {
@@ -135,22 +135,23 @@ contract NexusGenerator is Ownable {
     }
 
     // View function to see pending NXSs on frontend.
-    function pendingNexus(uint256 _pid, address _user)
-        external
-        view
-        returns (uint256)
-    {
+    function pendingNexus(
+        uint256 _pid,
+        address _user
+    ) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accNexusPerShare = pool.accNexusPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
-            uint256 multiplier =
-                getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 nexusReward =
-                multiplier.mul(nexusPerBlock).mul(pool.allocPoint).div(
-                    totalAllocPoint
-                );
+            uint256 multiplier = getMultiplier(
+                pool.lastRewardBlock,
+                block.number
+            );
+            uint256 nexusReward = multiplier
+                .mul(nexusPerBlock)
+                .mul(pool.allocPoint)
+                .div(totalAllocPoint);
             accNexusPerShare = accNexusPerShare.add(
                 nexusReward.mul(1e12).div(lpSupply)
             );
@@ -178,11 +179,14 @@ contract NexusGenerator is Ownable {
             return;
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 nexusReward =
-            multiplier.mul(nexusPerBlock).mul(pool.allocPoint).div(
-                totalAllocPoint
-            );
-        nexus.mint(multiStakingDistributor, nexusReward.mul(multiStakingDistRate).div(100));
+        uint256 nexusReward = multiplier
+            .mul(nexusPerBlock)
+            .mul(pool.allocPoint)
+            .div(totalAllocPoint);
+        nexus.mint(
+            multiStakingDistributor,
+            nexusReward.mul(multiStakingDistRate).div(100)
+        );
         nexus.mint(address(this), nexusReward);
         pool.accNexusPerShare = pool.accNexusPerShare.add(
             nexusReward.mul(1e12).div(lpSupply)
@@ -196,10 +200,11 @@ contract NexusGenerator is Ownable {
         UserInfo storage user = userInfo[_pid][msg.sender];
         updatePool(_pid);
         if (user.amount > 0) {
-            uint256 pending =
-                user.amount.mul(pool.accNexusPerShare).div(1e12).sub(
-                    user.rewardDebt
-                );
+            uint256 pending = user
+                .amount
+                .mul(pool.accNexusPerShare)
+                .div(1e12)
+                .sub(user.rewardDebt);
             safeNexusTransfer(msg.sender, pending);
         }
         pool.lpToken.safeTransferFrom(
@@ -218,10 +223,9 @@ contract NexusGenerator is Ownable {
         UserInfo storage user = userInfo[_pid][msg.sender];
         require(user.amount >= _amount, "withdraw: not good");
         updatePool(_pid);
-        uint256 pending =
-            user.amount.mul(pool.accNexusPerShare).div(1e12).sub(
-                user.rewardDebt
-            );
+        uint256 pending = user.amount.mul(pool.accNexusPerShare).div(1e12).sub(
+            user.rewardDebt
+        );
         safeNexusTransfer(msg.sender, pending);
         user.amount = user.amount.sub(_amount);
         user.rewardDebt = user.amount.mul(pool.accNexusPerShare).div(1e12);
@@ -250,7 +254,9 @@ contract NexusGenerator is Ownable {
     }
 
     // Update the Multistaking getter contract address
-    function setMultiStakingDistributorGetter(address _multiStakingDistributor) external onlyOwner {
+    function setMultiStakingDistributorGetter(
+        address _multiStakingDistributor
+    ) external onlyOwner {
         multiStakingDistributor = _multiStakingDistributor;
     }
 
