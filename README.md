@@ -9,8 +9,7 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
-npx hardhat run scripts/deploy.ts --network coston2
-npx hardhat verify --network coston2 --constructor-args scripts/arg_arc.ts <address> 
+npx hardhat run scripts/deploy.ts --network apothem
+npx hardhat verify --network apothem --constructor-args scripts/arg_arc.ts <address> 
 
-npx hardhat run scripts/deploy.ts --network flare
-npx hardhat verify --network flare --constructor-args scripts/arg_arc.ts <address> 
+npx hardhat flatten contracts/NexusNFT.sol > flatten/NexusNFT.sol

@@ -8,6 +8,7 @@ import "./Uniswap/Interfaces/IERC20Uniswap.sol";
 import "./Libraries/SafeMathUniswap.sol";
 import "./Libraries/NexusSwapLibrary.sol";
 import "./Libraries/TransferHelper.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract NexusRouter is INexusSwapRouter02 {
     using SafeMathUniswap for uint;

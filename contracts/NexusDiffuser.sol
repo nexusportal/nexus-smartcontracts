@@ -14,8 +14,6 @@ contract NexusDiffuser is Ownable {
 
     IUniswapV2Factory public immutable factory;
 
-    address public immutable xNexus;
-
     address public immutable nexus;
 
     address public immutable weth;
@@ -26,17 +24,14 @@ contract NexusDiffuser is Ownable {
 
     mapping(address => bool) public convertLpToBurnNxs;
 
-    address public nexusBurnSetter;
-
     uint256 public MIN_LP_AMOUNT = 0.003 * 10 ** 18;
 
     uint256 public limit_gas = 160000;
 
-    uint256 public nexusDiffuserTotalAmount = 0;
     uint256 public nexusTreasuryTotalAmount = 0;
+    uint256 public nexusMultiStakingTotalAmount = 0;
     uint256 public nexusBurnTotalAmount = 0;
     uint256 public nexusTotalAmount = 0;
-    uint256 public nexusBurnerTotalAmount = 0;
 
     bool private onlyNexusLp = true;
 
@@ -63,13 +58,13 @@ contract NexusDiffuser is Ownable {
 
     event NexusBurnerConvert(uint256 amountNXS);
 
+    event MultiStakingConvert(uint256 amountNXS);
+
     event TotalConvert(uint256 amountNXS);
 
     address public nexusTreasury;
     address public constant deadAddress =
         0x000000000000000000000000000000000000dEaD;
-
-    address public nexusBurn;
 
     modifier onlyHolder() {
         require(IERC20(nexus).balanceOf(msg.sender) > 0, "should hold nexus");
@@ -78,16 +73,13 @@ contract NexusDiffuser is Ownable {
 
     constructor (
         address _factory,
-        address _xNexus,
         address _nexus,
         address _weth
     ) {
         factory = IUniswapV2Factory(_factory);
-        xNexus = _xNexus;
         nexus = _nexus;
         weth = _weth;
         nexusTreasurySetter = address(msg.sender);
-        nexusBurnSetter = address(msg.sender);
     }
 
     function bridgeFor(address token) public view returns (address bridge) {
@@ -258,7 +250,7 @@ contract NexusDiffuser is Ownable {
         if (token0 == token1) {
             uint256 amount = amount0.add(amount1);
             if (token0 == nexus) {
-                IERC20(nexus).safeTransfer(xNexus, amount);
+                IERC20(nexus).safeTransfer(deadAddress, amount);
                 nexusOut = amount;
             } else if (token0 == weth) {
                 nexusOut = _toNXS(weth, amount);
@@ -269,11 +261,11 @@ contract NexusDiffuser is Ownable {
             }
         } else if (token0 == nexus) {
             // eg. NXS - ETH
-            IERC20(nexus).safeTransfer(xNexus, amount0);
+            IERC20(nexus).safeTransfer(deadAddress, amount0);
             nexusOut = _toNXS(token1, amount1).add(amount0);
         } else if (token1 == nexus) {
             // eg. USDT - NXS
-            IERC20(nexus).safeTransfer(xNexus, amount1);
+            IERC20(nexus).safeTransfer(deadAddress, amount1);
             nexusOut = _toNXS(token0, amount0).add(amount1);
         } else if (token0 == weth) {
             // eg. ETH - USDC
@@ -367,15 +359,6 @@ contract NexusDiffuser is Ownable {
         uint256 amountIn
     ) internal returns (uint256 amountOut) {
         if (nexusTreasury != address(0)) {
-            uint256 diffuserAmount = _swap(
-                token,
-                nexus,
-                amountIn.mul(7).div(10),
-                xNexus
-            );
-            nexusDiffuserTotalAmount = nexusDiffuserTotalAmount.add(
-                diffuserAmount
-            );
 
             uint256 treasuryAmount = _swap(
                 token,
@@ -387,66 +370,49 @@ contract NexusDiffuser is Ownable {
                 treasuryAmount
             );
 
-            uint256 nexusBurnerAmount = _swap(
-                token,
-                nexus,
-                amountIn.div(10),
-                nexusBurn
-            );
-            nexusBurnerTotalAmount = nexusBurnerTotalAmount.add(
-                nexusBurnerAmount
-            );
-
-            uint256 burnAmount = _swap(
-                token,
-                nexus,
-                amountIn.div(10),
-                deadAddress
-            );
-            nexusBurnTotalAmount = nexusBurnTotalAmount.add(burnAmount);
-
-            amountOut = diffuserAmount.add(treasuryAmount).add(burnAmount);
-            nexusTotalAmount = nexusTotalAmount.add(amountOut);
-
-            emit DiffuserConvert(diffuserAmount);
-            emit TreasuryConvert(treasuryAmount);
-            emit BurnConvert(burnAmount);
-            emit NexusBurnerConvert(nexusBurnerAmount);
-            emit TotalConvert(amountOut);
-        } else {
-            uint256 diffuserAmount = _swap(
-                token,
-                nexus,
-                amountIn.mul(7).div(10),
-                xNexus
-            );
-            nexusDiffuserTotalAmount = nexusDiffuserTotalAmount.add(
-                diffuserAmount
-            );
-
-            uint256 nexusBurnerAmount = _swap(
+            uint256 multiStakingAmount = _swap(
                 token,
                 nexus,
                 amountIn.mul(2).div(10),
-                nexusBurn
+                multiStakingGetter
             );
-            nexusBurnerTotalAmount = nexusBurnerTotalAmount.add(
-                nexusBurnerAmount
-            );
+            nexusMultiStakingTotalAmount = nexusMultiStakingTotalAmount.add(multiStakingAmount);
 
             uint256 burnAmount = _swap(
                 token,
                 nexus,
-                amountIn.div(10),
+                amountIn.mul(7).div(10),
                 deadAddress
             );
             nexusBurnTotalAmount = nexusBurnTotalAmount.add(burnAmount);
 
-            amountOut = diffuserAmount.add(burnAmount);
+            amountOut = treasuryAmount.add(burnAmount);
+            nexusTotalAmount = nexusTotalAmount.add(amountOut);
+            emit TreasuryConvert(treasuryAmount);
+            emit MultiStakingConvert(multiStakingAmount);
+            emit BurnConvert(burnAmount);
+            emit TotalConvert(amountOut);
+        } else {
+            uint256 multiStakingAmount = _swap(
+                token,
+                nexus,
+                amountIn.mul(3).div(10),
+                multiStakingGetter
+            );
+            nexusMultiStakingTotalAmount = nexusMultiStakingTotalAmount.add(multiStakingAmount);
+
+            uint256 burnAmount = _swap(
+                token,
+                nexus,
+                amountIn.mul(7).div(10),
+                deadAddress
+            );
+            nexusBurnTotalAmount = nexusBurnTotalAmount.add(burnAmount);
+
+            amountOut = burnAmount;
             nexusTotalAmount = nexusTotalAmount.add(amountOut);
 
-            emit DiffuserConvert(diffuserAmount);
-            emit NexusBurnerConvert(nexusBurnerAmount);
+            emit MultiStakingConvert(multiStakingAmount);
             emit BurnConvert(burnAmount);
             emit TotalConvert(amountOut);
         }
@@ -466,16 +432,6 @@ contract NexusDiffuser is Ownable {
             "NexusDiffuser: FORBIDDEN"
         );
         nexusTreasurySetter = _nexusTreasurySetter;
-    }
-
-    function setNexusBurn(address _nexusBurn) external {
-        require(msg.sender == nexusBurnSetter, "NexusDiffuser: FORBIDDEN");
-        nexusBurn = _nexusBurn;
-    }
-
-    function setNexusBurnSetter(address _nexusBurnSetter) external {
-        require(msg.sender == nexusBurnSetter, "NexusDiffuser: FORBIDDEN");
-        nexusBurnSetter = _nexusBurnSetter;
     }
 
     function setLpToBurnNxs(address _lp, bool _enable) external onlyOwner {

@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "hardhat-gas-reporter";
@@ -9,10 +9,22 @@ import "hardhat-contract-sizer";
 
 dotenv.config();
 
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners();
+
+  for (const account of accounts) {
+    console.log(account.address);
+  }
+});
+
+interface CustomUserConfig extends HardhatUserConfig {
+  namedAccounts: any
+}
+
 const pk = process.env.PK;
 if (!pk) throw new Error("!pk");
 
-const config: HardhatUserConfig = {
+const config: CustomUserConfig = {
   solidity: {
     version: "0.8.12",
     settings: {
@@ -21,6 +33,14 @@ const config: HardhatUserConfig = {
         runs: 200,
       },
     },
+  },
+  namedAccounts: {
+    deployer: 0,
+    minter: 1,
+    owner0: 5,
+    owner1: 2,
+    owner2: 3,
+    owner3: 4
   },
   networks: {
     hardhat: {
@@ -31,14 +51,14 @@ const config: HardhatUserConfig = {
         url: 'https://erpc.apothem.network',
       }
     },
-    xinfin: {
+    apothem: {
       url: process.env.RPCURL,
       accounts: [pk],
     }
   },
   etherscan: {
     apiKey: {
-      xinfin: process.env.ETHERSCAN_API_KEY || ""
+      apothem: process.env.ETHERSCAN_API_KEY || ""
     },
     customChains: [
       {
@@ -51,20 +71,20 @@ const config: HardhatUserConfig = {
       }
     ],
   },
-  gasReporter: {
-    currency: "CHF",
-    gasPrice: 21,
-  },
+  // gasReporter: {
+  //   currency: "CHF",
+  //   gasPrice: 21,
+  // },
   mocha: {
     timeout: 100000,
   },
-  contractSizer: {
-    alphaSort: true,
-    disambiguatePaths: false,
-    runOnCompile: true,
-    strict: true,
-    // only: [':ERC20$'],
-  }
+  // contractSizer: {
+  //   alphaSort: true,
+  //   disambiguatePaths: false,
+  //   runOnCompile: true,
+  //   strict: true,
+  //   // only: [':ERC20$'],
+  // }
 };
 
 export default config;

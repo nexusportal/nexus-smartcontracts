@@ -25,8 +25,8 @@ contract NexusToken is IERC20, Ownable {
     modifier onlyOwnerRole() {
         require(
             msg.sender == owner1 ||
-                msg.sender == owner2 ||
-                msg.sender == owner3,
+            msg.sender == owner2 ||
+            msg.sender == owner3,
             "User is not owner"
         );
         _;

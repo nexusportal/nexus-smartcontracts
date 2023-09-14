@@ -1,4 +1,15 @@
 {
+  "scripts": {
+    "test": "cls && npx hardhat test",
+    "fork": "npx hardhat node",
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat deploy --network hardhat",
+    "deploy:mainnet": "npx hardhat deploy --network mainnet",
+    "deploy:testnet": "npx hardhat deploy --network testnet",
+    "verify:mainnet": "npx hardhat etherscan-verify --network mainnet",
+    "verify:testnet": "npx hardhat etherscan-verify --network testnet --solc-input",
+    "export:mainnet": "npx hardhat export --network mainnet --export deployments/mainnet.json"
+  },
   "dependencies": {
     "@chainlink/contracts": "^0.6.1",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
@@ -27,7 +38,7 @@
     "typescript": "^4.5.2"
   },
   "devDependencies": {
-    "hardhat": "^2.12.7",
+    "hardhat": "^2.13.0",
     "hardhat-contract-sizer": "^2.8.0"
   }
 }
