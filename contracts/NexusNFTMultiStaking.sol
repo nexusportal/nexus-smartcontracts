@@ -44,10 +44,10 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
 
     uint256[] public LOCK_TIME_DURATION = [
         0,
-        30 days,
-        90 days,
-        180 days,
-        365 days
+        30 minutes,
+        90 minutes,
+        180 minutes,
+        365 minutes
     ];
 
     address public immutable nexusNFT;

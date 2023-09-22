@@ -24,7 +24,7 @@ contract NexusDiffuser is Ownable {
 
     mapping(address => bool) public convertLpToBurnNxs;
 
-    uint256 public MIN_LP_AMOUNT = 0.003 * 10 ** 18;
+    uint256 public MIN_LP_AMOUNT = 3 * 10 ** 15;
 
     uint256 public limit_gas = 160000;
 

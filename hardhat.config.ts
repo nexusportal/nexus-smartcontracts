@@ -5,7 +5,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "hardhat-gas-reporter";
 import "@nomicfoundation/hardhat-chai-matchers";
-import "hardhat-contract-sizer";
+// import "hardhat-contract-sizer";
 
 dotenv.config();
 
@@ -54,11 +54,16 @@ const config: CustomUserConfig = {
     apothem: {
       url: process.env.RPCURL,
       accounts: [pk],
-    }
+    },
+    xrp_evm: {
+      url: "https://rpc-evm-sidechain.xrpl.org",
+      accounts: [pk],
+    },
   },
   etherscan: {
     apiKey: {
-      apothem: process.env.ETHERSCAN_API_KEY || ""
+      apothem: process.env.ETHERSCAN_API_KEY || "",
+      xrp_evm: process.env.ETHERSCAN_API_KEY || ""
     },
     customChains: [
       {
@@ -68,7 +73,16 @@ const config: CustomUserConfig = {
           apiURL: "https://rpc.apothem.network",
           browserURL: "https://explorer.apothem.network/",
         },
-      }
+      },
+      {
+        network: "xrp_evm",
+        chainId: 1440002,
+        urls: {
+          apiURL: "https://rpc-evm-sidechain.xrpl.org",
+          browserURL: "https://evm-sidechain.xrpl.org/",
+        },
+      },
+
     ],
   },
   // gasReporter: {
