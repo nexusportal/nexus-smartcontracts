@@ -1,16 +1,16 @@
 import { ethers } from 'hardhat';
-import { WETH9, admin, NexusToken, NexusNFT, multistakingDistributor } from './var';
+import { admin, NexusToken, NexusNFT, multistakingDistributor, weth9, factory } from './var';
 
 async function main() {
-  // const NexusFactory = await ethers.getContractFactory('NexusFactory');
-  // const nexusFactory = await NexusFactory.deploy(admin);
-  // await nexusFactory.deployed();
-  // console.log('const factory = "', nexusFactory.address, '"');
+  const NexusFactory = await ethers.getContractFactory('NexusFactory');
+  const nexusFactory = await NexusFactory.deploy(admin);
+  await nexusFactory.deployed();
+  console.log('export const factory = "', nexusFactory.address, '"');
 
-  // const NexusRouter = await ethers.getContractFactory('NexusRouter');
-  // const nexusRouter = await NexusRouter.deploy(nexusFactory.address, WETH9);
-  // await nexusRouter.deployed();
-  // console.log('const router = "', nexusRouter.address, '"');
+  const NexusRouter = await ethers.getContractFactory('NexusRouter');
+  const nexusRouter = await NexusRouter.deploy(nexusFactory.address, weth9);
+  await nexusRouter.deployed();
+  console.log('const router = "', nexusRouter.address, '"');
 
 
   // const MultiStaking = await ethers.getContractFactory('NexusNFTMultiStakingDistributor');
@@ -32,11 +32,11 @@ async function main() {
   //   console.log('const NexusNFTMultiStaking = "', NexusNFTMultiStaking.address, '"');
 
 
-    const blockNumBefore = await ethers.provider.getBlockNumber();
-    const NexusGenerator = await ethers.getContractFactory('NexusGenerator');
-    const superfarm = await NexusGenerator.deploy(NexusToken, multistakingDistributor, ethers.utils.parseEther('5'), blockNumBefore, 1);
-    await superfarm.deployed();
-    console.log('const superfarm = "', superfarm.address, '"');
+  const blockNumBefore = await ethers.provider.getBlockNumber();
+  const NexusGenerator = await ethers.getContractFactory('NexusGenerator');
+  const superfarm = await NexusGenerator.deploy(NexusToken, multistakingDistributor, ethers.utils.parseEther('5'), blockNumBefore, 1);
+  await superfarm.deployed();
+  console.log('const superfarm = "', superfarm.address, '"');
 
 }
 

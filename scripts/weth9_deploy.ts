@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat';
-import { WETH9, admin, NexusToken } from './var';
+import { admin, NexusToken } from './var';
 
 async function main() {
   const WETH9 = await ethers.getContractFactory('WETH9');

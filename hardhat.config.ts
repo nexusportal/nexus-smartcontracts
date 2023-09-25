@@ -5,7 +5,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-ethers";
 import "hardhat-gas-reporter";
 import "@nomicfoundation/hardhat-chai-matchers";
-// import "hardhat-contract-sizer";
+import "hardhat-contract-sizer";
 
 dotenv.config();
 

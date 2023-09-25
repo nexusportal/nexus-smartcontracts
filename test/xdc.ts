@@ -38,12 +38,12 @@ describe("NexusSuperfarmGenerator", function () {
     token1 = await ERC20.deploy("tokenOne", "TokenOne");
     token1.mint(owner.address, parseEther("1000"));
     token2 = await ERC20.deploy("tokenTwo", "TokenTwo");
-    token2.mint(owner.address, parseEther("400"));
+    token2.mint(owner.address, parseEther("1400"));
 
-    // const CalHash = await ethers.getContractFactory("CalHash");
-    // const calHash = await CalHash.deploy();
-    // const res = await calHash.getInitHash();
-
+//     const CalHash = await ethers.getContractFactory("CalHash");
+//     const calHash = await CalHash.deploy();
+//     const res = await calHash.getInitHash();
+// console.log(res)
     const NexusFactory = await ethers.getContractFactory("NexusFactory");
     nexusFactory = await NexusFactory.deploy(owner.address);
     const NexusRouter = await ethers.getContractFactory("NexusRouter");
@@ -82,6 +82,17 @@ describe("NexusSuperfarmGenerator", function () {
       timestampBefore + 1000
     )
 
+    // await nexusRouter.addLiquidityETH(
+    //   token1.address,
+    //   token2.address,
+    //   parseEther("100"),
+    //   parseEther("100"),
+    //   0,
+    //   0,
+    //   owner.address,
+    //   timestampBefore + 1000
+    // )
+
     const pair1 = await nexusFactory.getPair(token0.address, token1.address);
     const pair2 = await nexusFactory.getPair(token0.address, token2.address);
     const pair3 = await nexusFactory.getPair(token1.address, token2.address);
@@ -91,49 +102,48 @@ describe("NexusSuperfarmGenerator", function () {
     const NexusGenerator = await ethers.getContractFactory("NexusGenerator");
     superfarm = await NexusGenerator.deploy(nexusToken.address, multiStaking.address, parseEther("5"), blockNumBefore, 1);
 
-    await token2.approve(superfarm.address, parseEther("500"));
+    await token2.approve(superfarm.address, parseEther("1400"));
     await token1.approve(superfarm.address, parseEther("500"));
     await token0.approve(superfarm.address, parseEther("500"));
     await superfarm.add(2, pair1, false);
     await superfarm.add(3, pair2, false);
     await superfarm.add(5, pair3, false);
     await superfarm.setRewardToken(pair1, token2.address, parseEther("3"));
-    await superfarm.setRewardToken(pair1, token1.address, parseEther("3"));
-    await superfarm.setRewardToken(pair1, token0.address, parseEther("3"));
+    // await superfarm.setRewardToken(pair1, token1.address, parseEther("3"));
+    // await superfarm.setRewardToken(pair1, token0.address, parseEther("3"));
   });
   it("Check depositRewardToken", async function () {
     await superfarm.setNexusTreasury(_signer.address);
     await superfarm.depositRewardToken(0, token2.address, parseEther("200"));
-    await superfarm.depositRewardToken(0, token1.address, parseEther("200"));
-    await superfarm.depositRewardToken(0, token0.address, parseEther("200"));
+    // await superfarm.depositRewardToken(0, token1.address, parseEther("200"));
+    // await superfarm.depositRewardToken(0, token0.address, parseEther("200"));
   })
 
   it("Check halving", async function () {
-    // const lpToken = await nexusFactory.getPair(token0.address, token1.address);
-    // const lpErc20 = new ethers.Contract(lpToken, ERC20ABI, _signer);
+    const lpToken = await nexusFactory.getPair(token0.address, token1.address);
+    const lpErc20 = new ethers.Contract(lpToken, ERC20ABI, _signer);
 
-    // await lpErc20.approve(superfarm.address, parseEther("200"));
-    // await lpErc20.transfer(accounts[1].address, parseEther("50"));
-    // await lpErc20.connect(accounts[1]).approve(superfarm.address, parseEther("200"));
-    // await nexusToken.setOwner(_signer.address, superfarm.address, _signer.address);
-    // await superfarm.depositLP(0, parseEther("20"));
-    // await mine(10000)
-    // // await superfarm.depositLP(0, parseEther("10"));
-    // await superfarm.updatePool(0);
-    // await mine(346);
-    // await superfarm.updatePool(0);
-    // await mine(1346);
-    // await superfarm.updatePool(0);
-    // await superfarm.updatePool(1);
-    // await mine(4346);
-    // await superfarm.updatePool(0);
-    // await mine(686);
-    // await superfarm.updatePool(0);
-    // await superfarm.updatePool(2);
-    // await mine(232);
-    // await superfarm.updatePool(0);
-    // await mine(36);
-    // await superfarm.updatePool(0);
+    await lpErc20.approve(superfarm.address, parseEther("200"));
+    await lpErc20.transfer(accounts[1].address, parseEther("50"));
+    await lpErc20.connect(accounts[1]).approve(superfarm.address, parseEther("200"));
+    await nexusToken.setOwner(_signer.address, superfarm.address, _signer.address);
+    await superfarm.depositLP(0, parseEther("20"));
+    await time.increase(1000);
+    await superfarm.setNexusTreasury(_signer.address);
+    await superfarm.depositRewardToken(0, token2.address, parseEther("200"));
+    // await superfarm.depositRewardToken(0, token1.address, parseEther("200"));
+    // await superfarm.depositRewardToken(0, token0.address, parseEther("200"));
+    await time.increase(100);
+    await mine(500);
+    await superfarm.depositLP(0, parseEther("5"));
+    await superfarm.connect(accounts[1]).depositLP(0, parseEther("20"));
+    await superfarm.depositRewardToken(0, token2.address, parseEther("200"));
+    await time.increase(100);
+    await superfarm.withdraw(0, parseEther("15"))
+    // await superfarm.depositRewardToken(0, token0.address, parseEther("140"));
+    // await superfarm.depositRewardToken(0, token0.address, parseEther("50"));
+    await time.increase(1000);
+    await superfarm.depositLP(0, parseEther("15"));
   })
 });
   // describe("Withdrawals", function () {

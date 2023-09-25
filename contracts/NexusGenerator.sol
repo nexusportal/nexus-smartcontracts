@@ -307,11 +307,8 @@ contract NexusGenerator is MultiOwnable {
             uint256 sendingAmount = rtInfo.remainAmount >= reward
                 ? reward
                 : rtInfo.remainAmount;
-            uint256 sendingMulti = sendingAmount.mul(multiStakingDistRate).div(
-                100
-            );
             accRewardPerShare = accRewardPerShare.add(
-                (sendingAmount.sub(sendingMulti)).mul(1e12).div(lpSupply)
+                sendingAmount.mul(1e12).div(lpSupply)
             );
         }
         uint256 rewardDebt = rewardTokenDebt[_pid][_user][
@@ -338,7 +335,7 @@ contract NexusGenerator is MultiOwnable {
 
     // Update reward variables of the given pool to be up-to-date.
     function updatePool(uint256 _pid) public {
-        if(_pid >= poolLength()) return;
+        if (_pid >= poolLength()) return;
         PoolInfo storage pool = poolInfo[_pid];
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         uint256 nexusReward = pendingNexusByPool(_pid);
@@ -373,10 +370,10 @@ contract NexusGenerator is MultiOwnable {
     }
 
     function updateRewardTokenStatus(uint256 _pid, uint256 _rid) public {
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfo memory pool = poolInfo[_pid];
         RewardTokenInfo storage rtInfo = rewardTokenInfo[_pid][_rid];
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        if (lpSupply == 0 || rtInfo.remainAmount == 0) {
+        if (lpSupply == 0) {
             rtInfo.lastRewardTimestamp = type(uint256).max;
             rtInfo.rewardDuration == 0;
             return;
@@ -397,8 +394,7 @@ contract NexusGenerator is MultiOwnable {
         uint256 reward = rtInfo.remainAmount >= expectedReward
             ? expectedReward
             : rtInfo.remainAmount;
-        uint256 sendingMulti = reward.mul(multiStakingDistRate).div(100);
-        uint256 moreShare = (reward.sub(sendingMulti)).mul(1e12).div(lpSupply);
+        uint256 moreShare = reward.mul(1e12).div(lpSupply);
         rtInfo.accRewardPerShare = rtInfo.accRewardPerShare.add(moreShare);
         rtInfo.remainAmount = rtInfo.remainAmount.sub(reward);
     }
@@ -407,9 +403,18 @@ contract NexusGenerator is MultiOwnable {
     function depositLP(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
-        RewardTokenInfo[] storage rtInfoes = rewardTokenInfo[_pid];
-        uint256 rtLen = rtInfoes.length;
+        uint256 rtLen = rewardTokenInfo[_pid].length;
         updatePool(_pid);
+        massRTInfoesUpdate(_pid);
+        for (uint256 i = 0; i < rtLen; i++) {
+            RewardTokenInfo memory rtInfo = rewardTokenInfo[_pid][i];
+            uint256 pendingReward = pendingRewardToken(_pid, i, msg.sender);
+            rewardTokenDebt[_pid][msg.sender][address(rtInfo.rewardToken)] = (
+                user.amount.add(_amount)
+            ).mul(rtInfo.accRewardPerShare).div(1e12);
+            if (pendingReward > 0)
+                rtInfo.rewardToken.transfer(msg.sender, pendingReward);
+        }
         if (user.amount > 0) {
             uint256 pending = user
                 .amount
@@ -418,31 +423,9 @@ contract NexusGenerator is MultiOwnable {
                 .sub(user.rewardDebt);
             if (pending > 0) _safeNexusTransfer(msg.sender, pending);
         }
-        pool.lpToken.safeTransferFrom(
-            address(msg.sender),
-            address(this),
-            _amount
-        );
+        pool.lpToken.transferFrom(msg.sender, address(this), _amount);
         user.amount = user.amount.add(_amount);
         user.rewardDebt = user.amount.mul(pool.accNexusPerShare).div(1e12);
-        massRTInfoesUpdate(_pid);
-        for (uint256 i = 0; i < rtLen; i++) {
-            RewardTokenInfo memory rtInfo = rtInfoes[i];
-            uint256 pendingReward = user
-                .amount
-                .mul(rtInfo.accRewardPerShare)
-                .div(1e12)
-                .sub(
-                    rewardTokenDebt[_pid][msg.sender][
-                        address(rtInfo.rewardToken)
-                    ]
-                );
-            rewardTokenDebt[_pid][msg.sender][address(rtInfo.rewardToken)] = (
-                user.amount
-            ).mul(rtInfo.accRewardPerShare).div(1e12);
-            if (pendingReward > 0)
-                rtInfo.rewardToken.safeTransfer(msg.sender, pendingReward);
-        }
         emit DepositLP(msg.sender, _pid, _amount);
     }
 
@@ -467,10 +450,7 @@ contract NexusGenerator is MultiOwnable {
             address(this),
             _depositAmount
         );
-        _rewardToken.transfer(
-            multiStakingDistributor,
-            _fee
-        );
+        _rewardToken.transfer(multiStakingDistributor, _fee);
         _rewardToken.transfer(treasury, _fee);
         emit DepositRewardToken(
             msg.sender,
@@ -484,32 +464,24 @@ contract NexusGenerator is MultiOwnable {
     function withdraw(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
-        RewardTokenInfo[] storage rtInfoes = rewardTokenInfo[_pid];
-        uint256 rtLen = rtInfoes.length;
+        uint256 rtLen = rewardTokenInfo[_pid].length;
         require(user.amount >= _amount, "withdraw: not good");
         updatePool(_pid);
         massRTInfoesUpdate(_pid);
-        uint256 pending = user.amount.mul(pool.accNexusPerShare).div(1e12).sub(
-            user.rewardDebt
-        );
-        if (pending > 0) _safeNexusTransfer(msg.sender, pending);
         for (uint256 i = 0; i < rtLen; i++) {
-            RewardTokenInfo memory rtInfo = rtInfoes[i];
-            uint256 pendingReward = user
-                .amount
-                .mul(rtInfo.accRewardPerShare)
-                .div(1e12)
-                .sub(
-                    rewardTokenDebt[_pid][msg.sender][
-                        address(rtInfo.rewardToken)
-                    ]
-                );
+            RewardTokenInfo memory rtInfo = rewardTokenInfo[_pid][i];
+            uint256 pendingReward = pendingRewardToken(_pid, i, msg.sender);
             rewardTokenDebt[_pid][msg.sender][address(rtInfo.rewardToken)] = (
                 user.amount.sub(_amount)
             ).mul(rtInfo.accRewardPerShare).div(1e12);
             if (pendingReward > 0)
                 rtInfo.rewardToken.transfer(msg.sender, pendingReward);
         }
+        uint256 pending = user.amount.mul(pool.accNexusPerShare).div(1e12).sub(
+            user.rewardDebt
+        );
+        if (pending > 0) _safeNexusTransfer(msg.sender, pending);
+        
         user.amount = user.amount.sub(_amount);
         user.rewardDebt = user.amount.mul(pool.accNexusPerShare).div(1e12);
         pool.lpToken.safeTransfer(address(msg.sender), _amount);

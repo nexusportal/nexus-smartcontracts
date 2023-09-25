@@ -12,4 +12,4 @@ npx hardhat run scripts/deploy.ts
 npx hardhat run scripts/dex_deploy.ts --network xrp_evm
 npx hardhat verify --network xrp_evm --constructor-args scripts/arg_arc.ts <address> 
 
-npx hardhat flatten contracts/x.sol > flatten/x.sol
+npx hardhat flatten contracts/NexusRouter.sol > flatten/NexusRouter.sol
