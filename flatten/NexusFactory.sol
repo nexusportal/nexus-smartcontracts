@@ -121,10 +121,10 @@ pragma solidity ^0.8.12;
 contract NexusSwapERC20 {
     using SafeMathUniswap for uint;
 
-    string public constant name = 'NEXUS LP Token';
-    string public constant symbol = 'NLP';
+    string public constant name = "NEXUS LP Token";
+    string public constant symbol = "NLP";
     uint8 public constant decimals = 18;
-    uint  public totalSupply;
+    uint public totalSupply;
     mapping(address => uint) public balanceOf;
     mapping(address => mapping(address => uint)) public allowance;
 
@@ -143,9 +143,11 @@ contract NexusSwapERC20 {
         }
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
-                keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+                keccak256(
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                ),
                 keccak256(bytes(name)),
-                keccak256(bytes('1')),
+                keccak256(bytes("1")),
                 chainId,
                 address(this)
             )
@@ -185,25 +187,51 @@ contract NexusSwapERC20 {
         return true;
     }
 
-    function transferFrom(address from, address to, uint value) external returns (bool) {
+    function transferFrom(
+        address from,
+        address to,
+        uint value
+    ) external returns (bool) {
         if (allowance[from][msg.sender] != type(uint).max) {
-            allowance[from][msg.sender] = allowance[from][msg.sender].sub(value);
+            allowance[from][msg.sender] = allowance[from][msg.sender].sub(
+                value
+            );
         }
         _transfer(from, to, value);
         return true;
     }
 
-    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external {
-        require(deadline >= block.timestamp, 'NEXUS: EXPIRED');
+    function permit(
+        address owner,
+        address spender,
+        uint value,
+        uint deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        require(deadline >= block.timestamp, "NEXUS: EXPIRED");
         bytes32 digest = keccak256(
             abi.encodePacked(
-                '\x19\x01',
+                "\x19\x01",
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline))
+                keccak256(
+                    abi.encode(
+                        PERMIT_TYPEHASH,
+                        owner,
+                        spender,
+                        value,
+                        nonces[owner]++,
+                        deadline
+                    )
+                )
             )
         );
         address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && recoveredAddress == owner, 'NEXUS: INVALID_SIGNATURE');
+        require(
+            recoveredAddress != address(0) && recoveredAddress == owner,
+            "NEXUS: INVALID_SIGNATURE"
+        );
         _approve(owner, spender, value);
     }
 }

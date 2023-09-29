@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import { NEXUS_NFT_Weight, NexusToken, admin } from "./var";
 
 async function main() {
   const NexusNFT = await ethers.getContractFactory("NexusEtherealsNFT");
@@ -11,7 +12,23 @@ async function main() {
 
   await nexusNFT.deployed();
 
-  console.log("NFT address: ", nexusNFT.address);
+  console.log("NFT = ", nexusNFT.address);
+
+  const multistaking = await ethers.getContractFactory("NexusNFTMultiStaking");
+  const multi = await multistaking.deploy(NexusToken, nexusNFT.address, NEXUS_NFT_Weight);
+
+  await multi.deployed();
+
+  console.log("NexusNFTMultiStaking = ", multi.address);
+
+  const NexusNFTMultiStakingDistributor = await ethers.getContractFactory("NexusNFTMultiStakingDistributor");
+  const NexusNFTMultiDistributor = await NexusNFTMultiStakingDistributor.deploy(admin);
+
+  await multi.deployed();
+
+  console.log("NexusNFTMultiStakingDistributor  = ", NexusNFTMultiDistributor.address);
+
+
 
   //Will deploy the same token 3times for testing on XRP EVM SideChain.
   // const erc20 = await ethers.getContractFactory("MyNToken");

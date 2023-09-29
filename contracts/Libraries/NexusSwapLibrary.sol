@@ -34,7 +34,7 @@ library NexusSwapLibrary {
                             hex"ff",
                             factory,
                             keccak256(abi.encodePacked(token0, token1)),
-                            hex"fc6e4911300bb4f56dd9754e1bcb7875517a9ab70e1b5b073c66cc50b4eb0515" // init code hash
+                            hex"0a2c469b2309cda21c7cfb273e781a1cfdb5f9bb23fd392e51954af1e6342e38" // init code hash
                         )
                     )
                 )

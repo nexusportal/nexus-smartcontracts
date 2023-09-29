@@ -6,6 +6,7 @@ import { Contract, utils } from "ethers";
 import hre, { ethers } from "hardhat";
 import { ERC20ABI } from "../abis/ERC20";
 import { parseEther } from "ethers/lib/utils";
+import { PERMIT_TYPEHASH } from "./shared/utils";
 
 
 let superfarm: Contract;
@@ -18,6 +19,8 @@ let token2: Contract;
 let nexusRouter: Contract;
 let nexusFactory: Contract;
 let pairContract: Contract;
+
+console.log(PERMIT_TYPEHASH)
 
 describe("NexusSuperfarmGenerator", function () {
   beforeEach(async () => {

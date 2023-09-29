@@ -13,3 +13,9 @@ npx hardhat run scripts/dex_deploy.ts --network xrp_evm
 npx hardhat verify --network xrp_evm --constructor-args scripts/arg_arc.ts <address> 
 
 npx hardhat flatten contracts/NexusRouter.sol > flatten/NexusRouter.sol
+npx hardhat flatten contracts/NexusFactory.sol > flatten/NexusFactory.sol
+npx hardhat flatten contracts/NexusGenerator.sol > flatten/NexusGenerator.sol
+npx hardhat flatten contracts/NexusDiffuser.sol > flatten/NexusDiffuser.sol
+npx hardhat flatten contracts/NexusNFTMultiStaking.sol > flatten/NexusNFTMultiStaking.sol
+npx hardhat flatten contracts/NexusNFTMultiStakingDistributor.sol > flatten/NexusNFTMultiStakingDistributor.sol
+npx hardhat flatten contracts/DistributeNexus.sol > flatten/DistributeNexus.sol
