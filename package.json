@@ -6,6 +6,8 @@
     "deploy": "npx hardhat deploy --network hardhat",
     "deploy:mainnet": "npx hardhat deploy --network mainnet",
     "deploy:testnet": "npx hardhat deploy --network testnet",
+    "deploy:apothem": "npx hardhat run scripts/apothem/deploy.ts --network apothem",
+    "deploy:initcode": "npx hardhat run scripts/apothem/init.ts --network apothem",
     "verify:mainnet": "npx hardhat etherscan-verify --network mainnet",
     "verify:testnet": "npx hardhat etherscan-verify --network testnet --solc-input",
     "export:mainnet": "npx hardhat export --network mainnet --export deployments/mainnet.json"

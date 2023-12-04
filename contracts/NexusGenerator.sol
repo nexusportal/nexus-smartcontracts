@@ -574,4 +574,14 @@ contract NexusGenerator is MultiOwnable {
         }
         return pLen;
     }
+
+    function getNexusPerBlock() public view returns (uint256) {
+        uint256 result = nexusPerBlock;
+        uint256 reductionblock = nextReductionBlock;
+        while (reductionblock <= block.number) {
+            result = result.mul(REDUCTION_RATE).div(1000000);
+            reductionblock = reductionblock.add(REDUCTION_PERIOD);
+        }
+        return result;
+    }
 }

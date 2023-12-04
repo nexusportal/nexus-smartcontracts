@@ -43,10 +43,10 @@ describe("NexusSuperfarmGenerator", function () {
     token2 = await ERC20.deploy("tokenTwo", "TokenTwo");
     token2.mint(owner.address, parseEther("1400"));
 
-//     const CalHash = await ethers.getContractFactory("CalHash");
-//     const calHash = await CalHash.deploy();
-//     const res = await calHash.getInitHash();
-// console.log(res)
+    //     const CalHash = await ethers.getContractFactory("CalHash");
+    //     const calHash = await CalHash.deploy();
+    //     const res = await calHash.getInitHash();
+    // console.log(res)
     const NexusFactory = await ethers.getContractFactory("NexusFactory");
     nexusFactory = await NexusFactory.deploy(owner.address);
     const NexusRouter = await ethers.getContractFactory("NexusRouter");
@@ -149,6 +149,25 @@ describe("NexusSuperfarmGenerator", function () {
     await superfarm.depositLP(0, parseEther("15"));
   })
 });
+
+describe("NFTReferral", function () {
+  it("Mint", async () => {
+    const NFTCon = await ethers.getContractFactory("NexusEtherealsNFT");
+    const NFT = await NFTCon.deploy(
+      "Nexus Ethereals",
+      "$ETHER",
+      "https://ethereals.fra1.cdn.digitaloceanspaces.com/metadata/",
+      "https://ethereals.fra1.cdn.digitaloceanspaces.com/images/1.jpeg"
+    )
+    const NFTReferralContract = await ethers.getContractFactory("NFTReferral");
+    const NFTReferral = await NFTReferralContract.deploy(NFT.address);
+
+    await NFT.setWhitelistDiscount(parseEther("1"));
+    await NFT.addToWhitelist([NFTReferral.address])
+
+    await NFTReferral.mintNFT(50, "0x04F886Aed8B7Fc774535E6DEcaaFd3F2B63BB653", { value: parseEther("150") });
+  })
+})
   // describe("Withdrawals", function () {
   //   describe("Validations", function () {
   //     it("Should revert with the right error if called too soon", async function () {

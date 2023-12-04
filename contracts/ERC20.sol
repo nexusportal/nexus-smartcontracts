@@ -11,13 +11,4 @@ contract MyNToken is ERC20 {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {
         owner = msg.sender;
     }
-
-    modifier onlyOwner() {
-        require(owner == msg.sender, "Only Owner");
-        _;
-    }
-
-    function mint(address to, uint256 _amount) public onlyOwner {
-        super._mint(to, _amount);
-    }
 }

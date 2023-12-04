@@ -3155,6 +3155,11 @@ contract NexusGenerator is MultiOwnable {
         uint256 accNexusPerShare; // Accumulated NXSs per share, times 1e12. See below.
     }
 
+    struct PendingRewardInfo {
+        address rewardToken;
+        uint256 pendingReward;
+    }
+
     struct ReductionInfo {
         uint256 reductionNumber;
         uint256 fromBlock;
@@ -3186,9 +3191,9 @@ contract NexusGenerator is MultiOwnable {
     // Bonus muliplier for early nexus makers.
     uint256 public constant BONUS_MULTIPLIER = 10;
 
-    uint256 public constant REDUCTION_RATE = 9100; // 91% for every
+    uint256 public constant REDUCTION_RATE = 999919; // 91% for every
 
-    uint256 public constant REDUCTION_PERIOD = 1000; // The reduction occurs for every 3000 blocks.
+    uint256 public constant REDUCTION_PERIOD = 24857; // The reduction occurs for every 3000 blocks.
 
     uint256 public reductionNumber;
 
@@ -3352,7 +3357,7 @@ contract NexusGenerator is MultiOwnable {
     function pendingNexusByUser(
         uint256 _pid,
         address _user
-    ) external view returns (uint256) {
+    ) public view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accNexusPerShare = pool.accNexusPerShare;
@@ -3386,7 +3391,7 @@ contract NexusGenerator is MultiOwnable {
                 redInfo.nexusPerBlock = redInfo
                     .nexusPerBlock
                     .mul(REDUCTION_RATE)
-                    .div(10000);
+                    .div(1000000);
             } else {
                 multiplier = getMultiplier(lastRewardBlock, block.number);
                 lastRewardBlock = block.number;
@@ -3476,7 +3481,7 @@ contract NexusGenerator is MultiOwnable {
 
     function _reductionNexusPerBlock() internal {
         while (nextReductionBlock <= block.number) {
-            nexusPerBlock = nexusPerBlock.mul(REDUCTION_RATE).div(10000);
+            nexusPerBlock = nexusPerBlock.mul(REDUCTION_RATE).div(1000000);
             nextReductionBlock = nextReductionBlock.add(REDUCTION_PERIOD);
             reductionNumber++;
         }
@@ -3603,7 +3608,7 @@ contract NexusGenerator is MultiOwnable {
             user.rewardDebt
         );
         if (pending > 0) _safeNexusTransfer(msg.sender, pending);
-        
+
         user.amount = user.amount.sub(_amount);
         user.rewardDebt = user.amount.mul(pool.accNexusPerShare).div(1e12);
         pool.lpToken.safeTransfer(address(msg.sender), _amount);
@@ -3644,6 +3649,23 @@ contract NexusGenerator is MultiOwnable {
     function setMultiStakingDistRate(uint256 _rate) external onlyOwner {
         require(_rate <= 10, "Cannot be large than 10%");
         multiStakingDistRate = _rate;
+    }
+
+    function getPendingRewardInfoes(
+        uint256 _pid,
+        address _user
+    ) external view returns (PendingRewardInfo[] memory) {
+        uint256 rewardLen = rewardTokenInfo[_pid].length;
+        PendingRewardInfo[] memory res = new PendingRewardInfo[](rewardLen + 1);
+        res[0].rewardToken = address(nexus);
+        res[0].pendingReward = pendingNexusByUser(_pid, _user);
+        for (uint256 i = 0; i < rewardLen; i++) {
+            res[i + 1].rewardToken = address(
+                rewardTokenInfo[_pid][i].rewardToken
+            );
+            res[i + 1].pendingReward = pendingRewardToken(_pid, i, _user);
+        }
+        return res;
     }
 
     function getPoolInfo(uint256 _pid) external view returns (PoolInfo memory) {

@@ -21,9 +21,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-contract WETH9 {
-    string public name     = "Wrapped Ether";
-    string public symbol   = "WETH";
+contract WXDC {
+    string public name     = "Wrapped XDC";
+    string public symbol   = "WXDC";
     uint8  public decimals = 18;
 
     event  Approval(address indexed src, address indexed guy, uint wad);

@@ -1,4 +1,7 @@
 node_modules
+flatten
+scripts
+test/
 .env
 coverage
 coverage.json
@@ -10,7 +13,6 @@ yarn.lock
 #Hardhat files
 cache
 artifacts
-
 
 yarn.lock
 yarn.lock
