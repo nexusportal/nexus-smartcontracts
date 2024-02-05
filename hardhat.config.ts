@@ -24,7 +24,7 @@ interface CustomUserConfig extends HardhatUserConfig {
 const pk = process.env.PK;
 if (!pk) throw new Error("!pk");
 
-const config: CustomUserConfig = {
+const config = {
   solidity: {
     version: "0.8.12",
     settings: {

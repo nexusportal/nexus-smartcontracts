@@ -890,40 +890,45 @@ contract NexusNFTMultiStaking is Ownable, ReentrancyGuard, ERC721Holder {
         require(lockMode > 0 && lockMode < 5, "Invalid lock mode");
 
         TokenLock storage lock = userLocks[msg.sender];
-
         require(lock.lockedAmount > 0, "no lock");
-
         require(lock.lockMode < lockMode, "NOT INCREASING UNLOCK TIME");
 
         uint256 count = userStakedNFTCount(msg.sender);
-
-        if (count > 0) {
-            if (lock.nexusLock == 0) {
-                depositNexusBar(minNexusCollateralAmount * count);
-            }
-            require(lock.lockedAmount >= minNexusAmount, "small nexus staked");
-        }
-
         uint256 unlockTime = lock.unlockTime +
             LOCK_TIME_DURATION[lockMode] -
             LOCK_TIME_DURATION[lock.lockMode];
-
-        uint256 addeddWeight = ((lock.lockedAmount + lock.nftWeight) *
+        uint256 addedWeight = ((lock.lockedAmount + lock.nftWeight) *
             (LOCK_TIME_MULTIPLIER[lockMode] -
                 LOCK_TIME_MULTIPLIER[lock.lockMode])) / 10;
 
+        uint256 requiredCollateral = count * minNexusCollateralAmount;
+        uint256 additionalCollateralNeeded = 0;
+
+        if (lock.nexusLock < requiredCollateral) {
+            additionalCollateralNeeded = requiredCollateral - lock.nexusLock;
+            // Check user balance and allowance before proceeding
+            require(
+                IERC20(nexusToken).balanceOf(msg.sender) >=
+                    additionalCollateralNeeded,
+                "Insufficient balance for additional collateral"
+            );
+            require(
+                IERC20(nexusToken).allowance(msg.sender, address(this)) >=
+                    additionalCollateralNeeded,
+                "Insufficient allowance for additional collateral"
+            );
+
+            depositNexusBar(additionalCollateralNeeded);
+        }
+
         _harvest();
 
-        totalPoolWeight += addeddWeight;
-
+        totalPoolWeight += addedWeight;
         nexusAmountForLock[lock.lockMode] -= lock.lockedAmount;
-
         nexusAmountForLock[lockMode] += lock.lockedAmount;
 
-        lock.totalWeight += addeddWeight;
-
+        lock.totalWeight += addedWeight;
         lock.lockMode = lockMode;
-
         lock.unlockTime = unlockTime;
 
         updateDebt();
