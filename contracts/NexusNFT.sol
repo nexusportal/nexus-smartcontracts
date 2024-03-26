@@ -36,6 +36,8 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
 
     mapping(address => uint256) public addressMintedBalance;
 
+    bool private locked;
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -46,25 +48,43 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
         setNotRevealedURI(_initNotRevealedUri);
     }
 
+    modifier nonReentrant() {
+        require(!locked, "No re-entrancy");
+        locked = true;
+        _;
+        locked = false;
+    }
+
     // internal
     function _baseURI() internal view virtual override returns (string memory) {
         return baseURI;
     }
 
     // public
-    function mint(uint256 _mintAmount) public payable {
+    function mint(uint256 _mintAmount) public payable nonReentrant {
         require(!paused, "the contract is paused");
         uint256 supply = totalSupply();
         require(_mintAmount > 0, "need to mint at least 1 NFT");
-        require(_mintAmount <= maxMintAmount,"max mint amount per session exceeded");
+        require(
+            _mintAmount <= maxMintAmount,
+            "max mint amount per session exceeded"
+        );
         require(supply + _mintAmount <= maxSupply, "max NFT limit exceeded");
 
         uint256 costToMint = isWhitelisted(msg.sender) && whitelistEnabled
-            ? cost - whitelistDiscount : cost;
+            ? cost - whitelistDiscount
+            : cost;
 
         if (msg.sender != owner()) {
-            require(msg.value >= costToMint * _mintAmount,"insufficient funds");
-            require(addressMintedBalance[msg.sender] + _mintAmount <=maxNFTPerAddress,"max NFT per address exceeded");
+            require(
+                msg.value >= costToMint * _mintAmount,
+                "insufficient funds"
+            );
+            require(
+                addressMintedBalance[msg.sender] + _mintAmount <=
+                    maxNFTPerAddress,
+                "max NFT per address exceeded"
+            );
         }
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
@@ -73,11 +93,9 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
         }
     }
 
-    function walletOfOwner(address _owner)
-        public
-        view
-        returns (uint256[] memory)
-    {
+    function walletOfOwner(
+        address _owner
+    ) public view returns (uint256[] memory) {
         uint256 ownerTokenCount = balanceOf(_owner);
         uint256[] memory tokenIds = new uint256[](ownerTokenCount);
         for (uint256 i; i < ownerTokenCount; i++) {
@@ -86,13 +104,9 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
         return tokenIds;
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
         require(
             _exists(tokenId),
             "ERC721Metadata: URI query for nonexistent token"
@@ -148,10 +162,9 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
         baseURI = _newBaseURI;
     }
 
-    function setBaseExtension(string memory _newBaseExtension)
-        public
-        onlyOwner
-    {
+    function setBaseExtension(
+        string memory _newBaseExtension
+    ) public onlyOwner {
         baseExtension = _newBaseExtension;
     }
 
@@ -173,10 +186,9 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
         }
     }
 
-    function removeFromWhitelist(address[] calldata _addresses)
-        public
-        onlyOwner
-    {
+    function removeFromWhitelist(
+        address[] calldata _addresses
+    ) public onlyOwner {
         for (uint256 i = 0; i < _addresses.length; i++) {
             if (whitelist[_addresses[i]]) {
                 whitelist[_addresses[i]] = false;
