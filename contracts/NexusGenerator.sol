@@ -380,7 +380,7 @@ contract NexusGenerator is MultiOwnable {
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (lpSupply == 0) {
             rtInfo.lastRewardTimestamp = type(uint256).max;
-            rtInfo.rewardDuration == 0;
+            rtInfo.rewardDuration = 0;
             return;
         }
         uint256 rewardDuration;

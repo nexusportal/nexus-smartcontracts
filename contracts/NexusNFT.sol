@@ -30,7 +30,7 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
     uint256 public whitelistCount;
     bool public whitelistEnabled = true;
 
-    event AddressAdded(address indexed _address);
+    event AddressAdded(address[] indexed _addresses);
     event AddressRemoved(address indexed _address);
     event WhitelistToggled(bool _enabled);
 
@@ -56,26 +56,15 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
         require(!paused, "the contract is paused");
         uint256 supply = totalSupply();
         require(_mintAmount > 0, "need to mint at least 1 NFT");
-        require(
-            _mintAmount <= maxMintAmount,
-            "max mint amount per session exceeded"
-        );
+        require(_mintAmount <= maxMintAmount,"max mint amount per session exceeded");
         require(supply + _mintAmount <= maxSupply, "max NFT limit exceeded");
 
         uint256 costToMint = isWhitelisted(msg.sender) && whitelistEnabled
-            ? cost - whitelistDiscount
-            : cost;
+            ? cost - whitelistDiscount : cost;
 
         if (msg.sender != owner()) {
-            require(
-                msg.value >= costToMint * _mintAmount,
-                "insufficient funds"
-            );
-            require(
-                addressMintedBalance[msg.sender] + _mintAmount <=
-                    maxNFTPerAddress,
-                "max NFT per address exceeded"
-            );
+            require(msg.value >= costToMint * _mintAmount,"insufficient funds");
+            require(addressMintedBalance[msg.sender] + _mintAmount <=maxNFTPerAddress,"max NFT per address exceeded");
         }
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
@@ -180,7 +169,6 @@ contract NexusEtherealsNFT is ERC721Enumerable, Ownable {
                 whitelist[_addresses[i]] = true;
                 whitelistIndices[_addresses[i]] = whitelistCount;
                 whitelistCount++;
-                emit AddressAdded(_addresses[i]);
             }
         }
     }

@@ -71,11 +71,7 @@ contract NexusDiffuser is Ownable {
         _;
     }
 
-    constructor (
-        address _factory,
-        address _nexus,
-        address _weth
-    ) {
+    constructor(address _factory, address _nexus, address _weth) {
         factory = IUniswapV2Factory(_factory);
         nexus = _nexus;
         weth = _weth;
@@ -211,6 +207,7 @@ contract NexusDiffuser is Ownable {
         address[] calldata token1
     ) external onlyEOA onlyHolder {
         // TODO: This can be optimized a fair bit, but this is safer and simpler for now
+        require(token0.length == token1.length, "Not same length");
         uint256 len = token0.length;
         for (uint256 i = 0; i < len; i++) {
             _convert(token0[i], token1[i]);
@@ -321,10 +318,7 @@ contract NexusDiffuser is Ownable {
         IUniswapV2Pair pair = IUniswapV2Pair(
             factory.getPair(fromToken, toToken)
         );
-        require(
-            address(pair) != address(0),
-            "NexusDiffuser: Cannot convert"
-        );
+        require(address(pair) != address(0), "NexusDiffuser: Cannot convert");
 
         // Interactions
         (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
@@ -359,7 +353,6 @@ contract NexusDiffuser is Ownable {
         uint256 amountIn
     ) internal returns (uint256 amountOut) {
         if (nexusTreasury != address(0)) {
-
             uint256 treasuryAmount = _swap(
                 token,
                 nexus,
@@ -376,7 +369,9 @@ contract NexusDiffuser is Ownable {
                 amountIn.mul(2).div(10),
                 multiStakingGetter
             );
-            nexusMultiStakingTotalAmount = nexusMultiStakingTotalAmount.add(multiStakingAmount);
+            nexusMultiStakingTotalAmount = nexusMultiStakingTotalAmount.add(
+                multiStakingAmount
+            );
 
             uint256 burnAmount = _swap(
                 token,
@@ -399,7 +394,9 @@ contract NexusDiffuser is Ownable {
                 amountIn.mul(3).div(10),
                 multiStakingGetter
             );
-            nexusMultiStakingTotalAmount = nexusMultiStakingTotalAmount.add(multiStakingAmount);
+            nexusMultiStakingTotalAmount = nexusMultiStakingTotalAmount.add(
+                multiStakingAmount
+            );
 
             uint256 burnAmount = _swap(
                 token,
@@ -419,18 +416,12 @@ contract NexusDiffuser is Ownable {
     }
 
     function setNexusTreasury(address _treasury) external {
-        require(
-            msg.sender == nexusTreasurySetter,
-            "NexusDiffuser: FORBIDDEN"
-        );
+        require(msg.sender == nexusTreasurySetter, "NexusDiffuser: FORBIDDEN");
         nexusTreasury = _treasury;
     }
 
     function setNexusTreasurySetter(address _nexusTreasurySetter) external {
-        require(
-            msg.sender == nexusTreasurySetter,
-            "NexusDiffuser: FORBIDDEN"
-        );
+        require(msg.sender == nexusTreasurySetter, "NexusDiffuser: FORBIDDEN");
         nexusTreasurySetter = _nexusTreasurySetter;
     }
 

@@ -19,14 +19,10 @@ interface INexusEtherealsNFT {
 
     function mint(uint256 _mintAmount) external payable;
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
+    function transferFrom(address from, address to, uint256 tokenId) external;
 }
 
-contract NFTReferral is IERC721Receiver {
+contract NFTReferral is IERC721Receiver, Ownable {
     address public nexusNFT;
 
     event ReferralUsed(
@@ -57,17 +53,22 @@ contract NFTReferral is IERC721Receiver {
 
         NFT.mint{value: mintPrice * _mintamount}(_mintamount);
         for (uint256 i = 1; i <= _mintamount; i++) {
-            NFT.transferFrom(
-                address(this),
-                msg.sender,
-                curTokenSupply + i
-            );
+            NFT.transferFrom(address(this), msg.sender, curTokenSupply + i);
         }
         uint256 reward = msg.value - mintPrice * _mintamount;
         if (reward > 0) {
             (bool os, ) = payable(_referrerAddress).call{value: reward}("");
             require(os);
         }
+    }
+
+    function withdraw(address to) public onlyOwner {
+        // =============================================================================
+        // Do not remove this otherwise you will not be able to withdraw the funds.
+        // =============================================================================
+        (bool os, ) = payable(to).call{value: address(this).balance}("");
+        require(os);
+        // =============================================================================
     }
 
     function onERC721Received(
