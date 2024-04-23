@@ -1,31 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./NexusToken.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./NexusToken.sol";
 import "./Utils/MultiOwnable.sol";
-import "hardhat/console.sol";
 
 contract NexusGenerator is MultiOwnable {
     using SafeMath for uint256;
+
     using SafeERC20 for IERC20;
-    // Info of each user.
+
+    uint256 public constant BONUS_MULTIPLIER = 10;
+
     struct UserInfo {
         uint256 amount; // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
-        //
-        // We do some fancy math here. Basically, any point in time, the amount of NXSs
-        // entitled to a user but is pending to be distributed is:
-        //
-        //   pending reward = (user.amount * pool.accNexusPerShare) - user.rewardDebt
-        //
-        // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accNexusPerShare` (and `lastRewardBlock`) gets updated.
-        //   2. User receives the pending reward sent to his/her address.
-        //   3. User's `amount` gets updated.
-        //   4. User's `rewardDebt` gets updated.
     }
-    // Info of each pool.
+
     struct PoolInfo {
         IERC20 lpToken; // Address of LP token contract.
         uint256 allocPoint; // How many allocation points assigned to this pool. NXSs to distribute per block.
@@ -44,6 +35,7 @@ contract NexusGenerator is MultiOwnable {
         uint256 toBlock;
         uint256 nexusPerBlock;
     }
+
     // Info of each Reward Token.
     struct RewardTokenInfo {
         IERC20 rewardToken; //Address of Reward Token contract for stakers
@@ -67,11 +59,10 @@ contract NexusGenerator is MultiOwnable {
     // NXS tokens created per block
     uint256 public nexusPerBlock;
     // Bonus muliplier for early nexus makers.
-    uint256 public constant BONUS_MULTIPLIER = 10;
 
-    uint256 public constant REDUCTION_RATE = 999919; // 91% for every
+    uint256 public REDUCTION_RATE; // 91% for every
 
-    uint256 public constant REDUCTION_PERIOD = 24857; // The reduction occurs for every 3000 blocks.
+    uint256 public REDUCTION_PERIOD; // The reduction occurs for every 3000 blocks.
 
     uint256 public reductionNumber;
 
@@ -94,14 +85,18 @@ contract NexusGenerator is MultiOwnable {
     uint256 public totalAllocPoint = 0;
     // The block number when NXS mining starts.
     uint256 public startBlock;
+
     event DepositLP(address indexed user, uint256 indexed pid, uint256 amount);
+
     event DepositRewardToken(
         address indexed user,
         uint256 indexed pid,
         address indexed rewardToken,
         uint256 amount
     );
+
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
+
     event EmergencyWithdraw(
         address indexed user,
         uint256 indexed pid,
@@ -214,6 +209,45 @@ contract NexusGenerator is MultiOwnable {
         poolInfo[_pid].allocPoint = _allocPoint;
     }
 
+    // Safe nexus transfer function, just in case if rounding error causes pool to not have enough NXSs.
+    function _safeNexusTransfer(address _to, uint256 _amount) internal {
+        uint256 nexusBal = nexus.balanceOf(address(this));
+        if (_amount > nexusBal) {
+            nexus.transfer(_to, nexusBal);
+        } else {
+            nexus.transfer(_to, _amount);
+        }
+    }
+
+    // Update the Multistaking getter contract address
+    function setMultiStakingDistributorGetter(
+        address _multiStakingDistributor
+    ) external onlyOwner {
+        multiStakingDistributor = _multiStakingDistributor;
+    }
+
+    function setNexusTreasury(address _treasury) external onlyOwner {
+        treasury = _treasury;
+    }
+
+    function setMultiStakingDistRate(uint256 _rate) external onlyOwner {
+        require(_rate <= 10, "Cannot be large than 10%");
+        multiStakingDistRate = _rate;
+    }
+
+    function setNexuReward(
+        uint256 _nexuPerBlock,
+        uint256 _reductionRate,
+        uint256 _reductionPeriod
+    ) public onlyOwner {
+        massUpdatePools();
+        nexusPerBlock = _nexuPerBlock;
+        REDUCTION_PERIOD = _reductionPeriod;
+        REDUCTION_RATE = _reductionRate;
+        nextReductionBlock = block.number.add(REDUCTION_PERIOD);
+        massUpdatePools();
+    }
+
     // Return reward multiplier over the given _from to _to block.
     function getMultiplier(
         uint256 _from,
@@ -241,9 +275,12 @@ contract NexusGenerator is MultiOwnable {
         uint256 accNexusPerShare = pool.accNexusPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (lpSupply == 0) return 0;
-        uint256 nexusReward = pendingNexusByPool(_pid);
+        uint256 nexusReward = pendingNexusByPool(_pid).div(100);
+        uint256 nexuTothis = nexusReward.mul(
+            uint256(100).sub(multiStakingDistRate)
+        );
         accNexusPerShare = accNexusPerShare.add(
-            nexusReward.mul(1e12).div(lpSupply)
+            nexuTothis.mul(1e12).div(lpSupply)
         );
         return user.amount.mul(accNexusPerShare).div(1e12).sub(user.rewardDebt);
     }
@@ -343,24 +380,26 @@ contract NexusGenerator is MultiOwnable {
         if (_pid >= poolLength()) return;
         PoolInfo storage pool = poolInfo[_pid];
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        uint256 nexusReward = pendingNexusByPool(_pid);
+        uint256 nexusReward = pendingNexusByPool(_pid).div(100);
+        uint256 nexuToMultiStaking = nexusReward.mul(multiStakingDistRate);
+        uint256 nexuTothis = nexusReward.mul(
+            uint256(100).sub(multiStakingDistRate)
+        );
         _updateReductionStatusOfPool(_pid);
         pool.lastRewardBlock = block.number;
         if (lpSupply == 0) return;
-        nexus.mint(
-            multiStakingDistributor,
-            nexusReward.mul(multiStakingDistRate).div(100)
-        );
-        nexus.mint(address(this), nexusReward);
+        nexus.mint(multiStakingDistributor, nexuToMultiStaking);
+        nexus.mint(address(this), nexuTothis);
         pool.accNexusPerShare = pool.accNexusPerShare.add(
-            nexusReward.mul(1e12).div(lpSupply)
+            nexuTothis.mul(1e12).div(lpSupply)
         );
     }
 
     function _reductionNexusPerBlock() internal {
         while (nextReductionBlock <= block.number) {
-            nexusPerBlock = nexusPerBlock.mul(REDUCTION_RATE).div(1000000);
             nextReductionBlock = nextReductionBlock.add(REDUCTION_PERIOD);
+            if (nexusPerBlock < 1 || REDUCTION_RATE < 1) continue;
+            nexusPerBlock = nexusPerBlock.mul(REDUCTION_RATE).div(1000000);
             reductionNumber++;
         }
     }
@@ -501,32 +540,6 @@ contract NexusGenerator is MultiOwnable {
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
         user.amount = 0;
         user.rewardDebt = 0;
-    }
-
-    // Safe nexus transfer function, just in case if rounding error causes pool to not have enough NXSs.
-    function _safeNexusTransfer(address _to, uint256 _amount) internal {
-        uint256 nexusBal = nexus.balanceOf(address(this));
-        if (_amount > nexusBal) {
-            nexus.transfer(_to, nexusBal);
-        } else {
-            nexus.transfer(_to, _amount);
-        }
-    }
-
-    // Update the Multistaking getter contract address
-    function setMultiStakingDistributorGetter(
-        address _multiStakingDistributor
-    ) external onlyOwner {
-        multiStakingDistributor = _multiStakingDistributor;
-    }
-
-    function setNexusTreasury(address _treasury) external onlyOwner {
-        treasury = _treasury;
-    }
-
-    function setMultiStakingDistRate(uint256 _rate) external onlyOwner {
-        require(_rate <= 10, "Cannot be large than 10%");
-        multiStakingDistRate = _rate;
     }
 
     function getPendingRewardInfoes(

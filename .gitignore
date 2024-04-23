@@ -1,6 +1,4 @@
 node_modules
-scripts
-test/
 .env
 coverage
 coverage.json
@@ -14,6 +12,5 @@ flatten
 cache
 artifacts
 
-yarn.lock
 yarn.lock
 

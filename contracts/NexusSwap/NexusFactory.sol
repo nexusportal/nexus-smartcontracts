@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./NexusSwap/Interfaces/INexusSwapFactory.sol";
-import "./NexusSwap/NexusSwapPair.sol";
+import "./Interfaces/INexusSwapFactory.sol";
+import "./NexusSwapPair.sol";
 
 contract NexusFactory is INexusSwapFactory {
     address public override feeTo;

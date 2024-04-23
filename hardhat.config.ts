@@ -55,6 +55,10 @@ const config = {
       url: process.env.RPCURL,
       accounts: [pk],
     },
+    xdc: {
+      url: process.env.MAIN_RPCURL,
+      accounts: [pk],
+    },
     xrp_evm: {
       url: "https://rpc-evm-sidechain.xrpl.org",
       accounts: [pk],
@@ -63,6 +67,7 @@ const config = {
   etherscan: {
     apiKey: {
       apothem: process.env.ETHERSCAN_API_KEY || "",
+      xdc: process.env.ETHERSCAN_API_KEY || "",
       xrp_evm: process.env.ETHERSCAN_API_KEY || ""
     },
     customChains: [
@@ -75,6 +80,14 @@ const config = {
         },
       },
       {
+        network: "xdc",
+        chainId: 50,
+        urls: {
+          apiURL: process.env.MAIN_RPCURL,
+          browserURL: "https://xdc.network/",
+        },
+      },
+      {
         network: "xrp_evm",
         chainId: 1440002,
         urls: {
@@ -82,7 +95,6 @@ const config = {
           browserURL: "https://evm-sidechain.xrpl.org/",
         },
       },
-
     ],
   },
   // gasReporter: {
