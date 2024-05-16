@@ -15,6 +15,8 @@ export const deployContract = async function (name: string, params: any, periphe
     let address = factory.address
     await contract.deployTransaction.wait(5);
 
+    console.log(name, address)
+
     fs.mkdirSync(`scripts/params`, { recursive: true });
     fs.mkdirSync(`scripts/result`, { recursive: true });
     const outputCodes = `module.exports = ${JSON.stringify(params)}`

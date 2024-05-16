@@ -2,10 +2,11 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./NexusToken.sol";
 import "./Utils/MultiOwnable.sol";
 
-contract NexusGenerator is MultiOwnable {
+contract NexusGenerator is MultiOwnable, ReentrancyGuard {
     using SafeMath for uint256;
 
     using SafeERC20 for IERC20;
@@ -444,7 +445,7 @@ contract NexusGenerator is MultiOwnable {
     }
 
     // Deposit LP tokens to NexusGenerator for NXS allocation.
-    function depositLP(uint256 _pid, uint256 _amount) public {
+    function depositLP(uint256 _pid, uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         uint256 rtLen = rewardTokenInfo[_pid].length;
@@ -478,7 +479,7 @@ contract NexusGenerator is MultiOwnable {
         uint256 _pid,
         IERC20 _rewardToken,
         uint256 _depositAmount
-    ) public {
+    ) public nonReentrant {
         require(_pid < poolLength(), "Non Exist Pool");
         uint256 _rid = getRewardTokenId(_pid, _rewardToken);
         require(_rid < rewardTokenInfo[_pid].length, "No reward token setting");
@@ -505,7 +506,7 @@ contract NexusGenerator is MultiOwnable {
     }
 
     // Withdraw LP tokens from NexusGenerator.
-    function withdraw(uint256 _pid, uint256 _amount) public {
+    function withdraw(uint256 _pid, uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         uint256 rtLen = rewardTokenInfo[_pid].length;
@@ -533,7 +534,7 @@ contract NexusGenerator is MultiOwnable {
     }
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
-    function emergencyWithdrawLP(uint256 _pid) public {
+    function emergencyWithdrawLP(uint256 _pid) public nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
