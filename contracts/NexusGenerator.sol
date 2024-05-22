@@ -131,6 +131,7 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
         IERC20 _lpToken,
         bool _withUpdate
     ) public onlyOwner {
+        if (poolLength() > getPoolId(_lpToken)) return;
         if (_withUpdate) {
             massUpdatePools();
         }
@@ -468,7 +469,8 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
                 .sub(user.rewardDebt);
             if (pending > 0) _safeNexusTransfer(msg.sender, pending);
         }
-        pool.lpToken.transferFrom(msg.sender, address(this), _amount);
+        if (_amount > 0)
+            pool.lpToken.transferFrom(msg.sender, address(this), _amount);
         user.amount = user.amount.add(_amount);
         user.rewardDebt = user.amount.mul(pool.accNexusPerShare).div(1e12);
         emit DepositLP(msg.sender, _pid, _amount);
@@ -490,13 +492,16 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
         rtInfo.remainAmount += _amount;
         rtInfo.lastRewardTimestamp = block.timestamp;
         rtInfo.rewardDuration += _amount.div(rtInfo.distRate);
-        _rewardToken.transferFrom(
-            address(msg.sender),
-            address(this),
-            _depositAmount
-        );
-        _rewardToken.transfer(multiStakingDistributor, _fee);
-        _rewardToken.transfer(treasury, _fee);
+        if (_depositAmount > 0)
+            _rewardToken.transferFrom(
+                address(msg.sender),
+                address(this),
+                _depositAmount
+            );
+        if (_fee > 0) {
+            _rewardToken.transfer(multiStakingDistributor, _fee);
+            _rewardToken.transfer(treasury, _fee);
+        }
         emit DepositRewardToken(
             msg.sender,
             _pid,
@@ -529,7 +534,8 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
 
         user.amount = user.amount.sub(_amount);
         user.rewardDebt = user.amount.mul(pool.accNexusPerShare).div(1e12);
-        pool.lpToken.safeTransfer(address(msg.sender), _amount);
+        if (_amount > 0)
+            pool.lpToken.safeTransfer(address(msg.sender), _amount);
         emit Withdraw(msg.sender, _pid, _amount);
     }
 

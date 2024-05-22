@@ -4,6 +4,7 @@
     "fork": "npx hardhat node",
     "compile": "npx hardhat compile",
     "deploy": "npx hardhat deploy --network hardhat",
+    "migrate:nexugen": "npx hardhat run scripts/mainnet/migration_nexu_gen.ts --network xdc",
     "deploy:mainnet": "npx hardhat run scripts/mainnet/deploy.ts --network xdc",
     "deploy:testnet": "npx hardhat deploy --network testnet",
     "deploy:apothem": "npx hardhat run scripts/apothem/deploy.ts --network apothem",
