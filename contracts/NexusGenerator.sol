@@ -23,6 +23,7 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
         uint256 allocPoint; // How many allocation points assigned to this pool. NXSs to distribute per block.
         uint256 lastRewardBlock; // Last block number that NXSs distribution occurs.
         uint256 accNexusPerShare; // Accumulated NXSs per share, times 1e12. See below.
+        uint256 totalLockedLP;
     }
 
     struct PendingRewardInfo {
@@ -144,7 +145,8 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
                 lpToken: _lpToken,
                 allocPoint: _allocPoint,
                 lastRewardBlock: lastRewardBlock,
-                accNexusPerShare: 0
+                accNexusPerShare: 0,
+                totalLockedLP: 0
             })
         );
         _updateReductionStatusOfPool(poolLength() - 1);
@@ -275,7 +277,7 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accNexusPerShare = pool.accNexusPerShare;
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = pool.totalLockedLP;
         if (lpSupply == 0) return 0;
         uint256 nexusReward = pendingNexusByPool(_pid).div(100);
         uint256 nexuTothis = nexusReward.mul(
@@ -332,7 +334,7 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
         RewardTokenInfo memory rtInfo = rewardTokenInfo[_pid][_rid];
         UserInfo memory user = userInfo[_pid][_user];
         uint256 accRewardPerShare = rtInfo.accRewardPerShare;
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = pool.totalLockedLP;
         if (rtInfo.rewardDuration != 0 && lpSupply != 0) {
             uint256 rewardDuration;
             if (rtInfo.lastRewardTimestamp > block.timestamp)
@@ -381,7 +383,7 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
     function updatePool(uint256 _pid) public {
         if (_pid >= poolLength()) return;
         PoolInfo storage pool = poolInfo[_pid];
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = pool.totalLockedLP;
         uint256 nexusReward = pendingNexusByPool(_pid).div(100);
         uint256 nexuToMultiStaking = nexusReward.mul(multiStakingDistRate);
         uint256 nexuTothis = nexusReward.mul(
@@ -418,7 +420,7 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
     function updateRewardTokenStatus(uint256 _pid, uint256 _rid) public {
         PoolInfo memory pool = poolInfo[_pid];
         RewardTokenInfo storage rtInfo = rewardTokenInfo[_pid][_rid];
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = pool.totalLockedLP;
         if (lpSupply == 0) {
             rtInfo.lastRewardTimestamp = type(uint256).max;
             rtInfo.rewardDuration = 0;
@@ -473,6 +475,7 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
             pool.lpToken.transferFrom(msg.sender, address(this), _amount);
         user.amount = user.amount.add(_amount);
         user.rewardDebt = user.amount.mul(pool.accNexusPerShare).div(1e12);
+        pool.totalLockedLP = pool.totalLockedLP.add(_amount);
         emit DepositLP(msg.sender, _pid, _amount);
     }
 
@@ -536,6 +539,7 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
         user.rewardDebt = user.amount.mul(pool.accNexusPerShare).div(1e12);
         if (_amount > 0)
             pool.lpToken.safeTransfer(address(msg.sender), _amount);
+        pool.totalLockedLP = pool.totalLockedLP.sub(_amount);
         emit Withdraw(msg.sender, _pid, _amount);
     }
 
@@ -543,8 +547,10 @@ contract NexusGenerator is MultiOwnable, ReentrancyGuard {
     function emergencyWithdrawLP(uint256 _pid) public nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
-        pool.lpToken.safeTransfer(address(msg.sender), user.amount);
+        if (user.amount > 0)
+            pool.lpToken.safeTransfer(address(msg.sender), user.amount);
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
+        pool.totalLockedLP = pool.totalLockedLP.sub(user.amount);
         user.amount = 0;
         user.rewardDebt = 0;
     }
