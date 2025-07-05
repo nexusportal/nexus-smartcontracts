@@ -10,7 +10,7 @@ import "hardhat-contract-sizer";
 dotenv.config();
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
+  const accounts = await (hre as any).ethers.getSigners();
 
   for (const account of accounts) {
     console.log(account.address);
@@ -59,8 +59,24 @@ const config = {
       url: process.env.MAIN_RPCURL,
       accounts: [pk],
     },
-    xrp_evm: {
+    xrp_evm_mainnet: {
+      url: "https://rpc.xrplevm.org",
+      chainId: 1440000,
+      accounts: [pk],
+      // Remove fixed gasPrice to use dynamic pricing
+      gas: 8000000,
+    },
+    xrp_evm_testnet: {
       url: "https://rpc-evm-sidechain.xrpl.org",
+      chainId: 1440002,
+      accounts: [pk],
+      gasPrice: 6000000000, // 6 gwei (consistent with mainnet)
+      gas: 8000000,
+    },
+    // Keep old xrp_evm for backwards compatibility
+    xrp_evm: {
+      url: "https://rpc.xrplevm.org", // Fixed: was pointing to testnet
+      chainId: 1440000, // Fixed: was 1440002 (testnet)
       accounts: [pk],
     },
   },
@@ -68,7 +84,9 @@ const config = {
     apiKey: {
       apothem: process.env.ETHERSCAN_API_KEY || "",
       xdc: process.env.ETHERSCAN_API_KEY || "",
-      xrp_evm: process.env.ETHERSCAN_API_KEY || ""
+      xrp_evm_mainnet: "dummy", // XRP EVM doesn't need API key
+      xrp_evm_testnet: "dummy", // XRP EVM doesn't need API key
+      xrp_evm: "dummy" // XRP EVM doesn't need API key
     },
     customChains: [
       {
@@ -88,11 +106,27 @@ const config = {
         },
       },
       {
-        network: "xrp_evm",
+        network: "xrp_evm_mainnet",
+        chainId: 1440000,
+        urls: {
+          apiURL: "https://explorer.xrplevm.org/api",
+          browserURL: "https://explorer.xrplevm.org/",
+        },
+      },
+      {
+        network: "xrp_evm_testnet",
         chainId: 1440002,
         urls: {
-          apiURL: "https://rpc-evm-sidechain.xrpl.org",
+          apiURL: "https://evm-sidechain.xrpl.org/api",
           browserURL: "https://evm-sidechain.xrpl.org/",
+        },
+      },
+      {
+        network: "xrp_evm",
+        chainId: 1440000,
+        urls: {
+          apiURL: "https://explorer.xrplevm.org/api",
+          browserURL: "https://explorer.xrplevm.org/",
         },
       },
     ],

@@ -9,9 +9,18 @@
     "deploy:testnet": "npx hardhat deploy --network testnet",
     "deploy:apothem": "npx hardhat run scripts/apothem/deploy.ts --network apothem",
     "deploy:initcode": "npx hardhat run scripts/apothem/init.ts --network apothem",
+    "deploy:xrp-mainnet": "npx hardhat run scripts/xrp_mainnet/deploy.ts --network xrp_evm_mainnet",
+    "deploy:xrp-testnet": "npx hardhat run scripts/xrp_mainnet/deploy.ts --network xrp_evm_testnet",
+    "deploy:xrp": "npx hardhat run scripts/xrp_mainnet/deploy.ts --network xrp_evm",
+    "setup:xrp-mainnet": "npx hardhat run scripts/xrp_mainnet/setup.ts --network xrp_evm_mainnet",
+    "check:xrp-mainnet": "npx hardhat run scripts/xrp_mainnet/check_config.ts --network xrp_evm_mainnet",
+    "get-hash": "npx hardhat run scripts/xrp_mainnet/get_init_hash.ts",
     "verify:mainnet": "npx hardhat verify --network mainnet ",
     "verify:testnet": "npx hardhat etherscan-verify --network testnet --solc-input",
-    "export:mainnet": "npx hardhat export --network mainnet --export deployments/mainnet.json"
+    "verify:xrp-mainnet": "npx hardhat verify --network xrp_evm_mainnet",
+    "verify:xrp-testnet": "npx hardhat verify --network xrp_evm_testnet",
+    "export:mainnet": "npx hardhat export --network mainnet --export deployments/mainnet.json",
+    "export:xrp-mainnet": "npx hardhat export --network xrp_evm_mainnet --export deployments/xrp_mainnet.json"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.6.1",
